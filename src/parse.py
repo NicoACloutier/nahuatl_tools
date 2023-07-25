@@ -2,6 +2,7 @@ import typing, re
 
 #verb morphemes
 NEGATION_PREFIXES_V = ['ax'] #prefixes used for negation
+TENSE_PREFIXES_V = ['o'] #past tense prefix.
 SUBJECT_PREFIXES_V = ['ni', 'ti', 'in', 'xi'] #prefixes used to mark subjects
 REFLEXIVE_PREFIXES_V = ['no', 'mo'] #prefixes used to mark reflexives
 OBJECT_PREFIXES_V = ['nec', 'miz', 'tec', 'kin', 'ki', 'k', 'j', 'te', 'La'] #prefixes used to mark objects
@@ -50,6 +51,43 @@ def search_suffix(word: str, suffixes: typing.Union[list[str], dict[str, str]], 
 			return word, used_suffix
 	return word, None
 
+def search_absolutive(noun: str) -> tuple[str, typing.Optional[str]]:
+	'''
+	Search for an absolutive suffix in a noun.
+	Arguments:
+		`noun: str`: the noun to search in.
+	Returns:
+		`tuple[str, typing.Optional[str]]`: if absolutive present, tuple of noun w/out absolutive and absolutive. Otherwise, tuple of `noun` and `None`.
+	'''
+	return search_suffix(noun, ABSOLUTIVE_SUFFIXES_N, use_regex=True)
+
+def lemmatize_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]]) -> str:
+	'''
+	Return the lemma of a word.
+	Arguments:
+		`word: str`: the word to gloss.
+		`prefixes: list[list[str]]`: a list of lists of mutually exclusive prefixes in order of appearance from beginning.
+		`suffixes: list[list[str]]`: a list of lists of mutually exclusive suffixes in order of appearance from end.
+	Returns:
+		`str`: the lemma of the word.
+	'''
+	for prefix_list in prefixes:
+		word, _ = search_prefix(word, prefix_list)
+	for suffix_list in suffixes:
+		word, _ = search_suffix(word, suffix_list)
+	return word
+
+def lemmatize_noun(noun: str) -> str:
+	'''
+	Lemmatize a noun.
+	Arguments:
+		`noun: str`: the noun to lemmatize.
+	Returns:
+		`str`: the lemma of the noun.
+	'''
+	noun, absolutive = search_absolutive(noun)
+	return noun if absolutive else lemmatize_word(noun, [GENITIVE_PREFIXES_N], [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N])
+
 def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]]) -> list[str]:
 	'''
 	Split a word into its component morphemes.
@@ -77,9 +115,23 @@ def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]]) 
 	return morphemes
 
 def parse_verb(verb: str) -> list[str]:
+	'''
+	Parse a verb for morphemes.
+	Arguments:
+		`verb: str`: the verb to be parsed.
+	Returns:
+		`list[str]`: a list of morphemes in the verb.
+	'''
 	return parse_word(verb, [NEGATION_PREFIXES_V, SUBJECT_PREFIXES_V, REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V], 
 					  [DIRECTIONAL_SUFFIXES_V, NUMBER_TENSE_SUFFIXES_V])
 
 def parse_noun(noun: str) -> list[str]:
-	noun, absolutive = search_suffix(noun, ABSOLUTIVE_SUFFIXES_N, use_regex=True)
+	'''
+	Parse a noun for morphemes.
+	Arguments:
+		`noun: str`: the noun to be parsed.
+	Returns:
+		`list[str]`: the list of morphemes in the noun.
+	'''
+	noun, absolutive = search_absolutive(noun)
 	return [noun, absolutive] if absolutive else parse_word(noun, [GENITIVE_PREFIXES_N], [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N])
