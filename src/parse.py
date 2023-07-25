@@ -15,7 +15,8 @@ TENSE_SUFFIXES_V = ['se', 's', 'yaya', 'ktok', 'jtok', 'toya', 'k', 'ke'] #suffi
 GENITIVE_PREFIXES_N = ['no', 'mo', 'to', 'inin', 'ini', 'in', 'i', 'imo'] #prefixes used to mark possession
 
 ABSOLUTIVE_SUFFIXES_N = {'Li': 'Li', 'L': 'L', '(?<=[l])i': 'i', '(?!<=[z])in': 'in', 'me': 'me', 'mej': 'mej'} #suffixes used to mark the absolutive (uses RegEx)
-PLURAL_SUFFIXES_N = ['mej', 'me', 'wan', 'wa', 'yo'] #suffixes used to mark the plural and genitive
+PLURAL_SUFFIXES_N = ['mej', 'me'] #suffixes used to mark the plural
+GENITIVE_SUFFIXES_N = ['wan', 'wa', 'yo']
 DIMINUTIVE_SUFFIXES_N = ['zizin', 'zinzin', 'zin', 'zizi', 'zi'] #suffixes used to mark the diminutive
 
 def search_prefix(word: str, prefixes: list[str]) -> tuple[str, typing.Optional[str]]:
@@ -62,6 +63,16 @@ def search_absolutive(noun: str) -> tuple[str, typing.Optional[str]]:
 	'''
 	return search_suffix(noun, ABSOLUTIVE_SUFFIXES_N, use_regex=True)
 
+def search_genitive(noun: str) -> tuple[str, typing.Optional[str]]:
+	'''
+	Search for a gentive prefix in a noun.
+	Arguments:
+		`noun: str`: the noun to search in.
+	Returns:
+		`tuple[str, typing.Optional[str]]`: if genitive present, tuple of noun w/out genitive and genitive. Otherwise, tuple of `noun` and `None`.
+	'''
+	return search_prefix(noun, GENITIVE_PREFIXES_N)
+
 def lemmatize_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]]) -> str:
 	'''
 	Return the lemma of a word.
@@ -86,8 +97,11 @@ def lemmatize_noun(noun: str) -> str:
 	Returns:
 		`str`: the lemma of the noun.
 	'''
-	noun, absolutive = search_absolutive(noun)
-	return noun if absolutive else lemmatize_word(noun, [GENITIVE_PREFIXES_N], [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N])
+	_, absolutive = search_absolutive(noun)
+	if not absolutive:
+		_, genitive = search_genitive(noun)
+		suffixes = [DIMINUTIVE_SUFFIXES_N, GENITIVE_SUFFIXES_N] if genitive else [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N]
+	return lemmatize_word(noun, [SUBJECT_PREFIXES_V], [ABSOLUTIVE_SUFFIXES_N]) if absolutive else lemmatize_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N], suffixes)
 
 def lemmatize_verb(verb: str) -> str:
 	'''
@@ -97,7 +111,8 @@ def lemmatize_verb(verb: str) -> str:
 	Returns:
 		`str`: the lemma of the noun.
 	'''
-	return lemmatize_word(verb, [NEGATION_PREFIXES_V, SUBJECT_PREFIXES_V, REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V], [DIRECTIONAL_SUFFIXES_V, NUMBER_TENSE_SUFFIXES_V])
+	return lemmatize_word(verb, [NEGATION_PREFIXES_V, SUBJECT_PREFIXES_V, REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V], 
+							[NUMBER_SUFFIXES_V, DIRECTIONAL_SUFFIXES_V, TENSE_SUFFIXES_V])
 
 def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]]) -> tuple[list[str], str]:
 	'''
@@ -145,4 +160,7 @@ def parse_noun(noun: str) -> tuple[list[str], str]:
 		`list[str]`: the list of morphemes in the noun.
 	'''
 	_, absolutive = search_absolutive(noun)
-	return parse_word(noun, [SUBJECT_PREFIXES_V], [ABSOLUTIVE_SUFFIXES_N]) if absolutive else parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N], [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N])
+	if not absolutive:
+		_, genitive = search_genitive(noun)
+		suffixes = [DIMINUTIVE_SUFFIXES_N, GENITIVE_SUFFIXES_N] if genitive else [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N]
+	return parse_word(noun, [SUBJECT_PREFIXES_V], [ABSOLUTIVE_SUFFIXES_N]) if absolutive else parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N], suffixes)
