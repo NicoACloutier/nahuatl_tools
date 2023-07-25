@@ -3,6 +3,7 @@ import re
 #a substitution that will correctly convert most modern orthographies
 MODERN = {'j': ['h'], 
 		  'k': ['qu'],
+		  'c': ['ch'],
 		  'q': ['kw', 'ku'],
 		  'z': ['ts', 'tz'],
 		  'w': ['u'],
@@ -41,7 +42,6 @@ class Orthography:
 
 	Instance variables:
 		`self.uses_c: bool`: whether or not the orthography uses the grapheme <c> as the phonemes /k/ and /s/.
-		`self.has_doubles: bool`: hether or not the orthography has repeated graphemes representing a single morpheme.
 		`self.substitutions: dict[str, list[str]]`: direct substitutions. Keys are graphemes in common orthography, values are list of reps in other.
 	'''
 
@@ -84,5 +84,5 @@ class Orthography:
 		for phoneme in self.substitutions:
 			for grapheme in self.substitutions[phoneme]:
 				text = text.replace(grapheme, phoneme)
-		text = re.sub(r'([cjlmnpqstwxyz])\1', r'\1', text) #remove double consonants except <l>
+		text = re.sub(r'([cjlmpqstwxyz])\1', r'\1', text) #remove double consonants except <l>
 		return text
