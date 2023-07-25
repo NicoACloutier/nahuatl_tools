@@ -84,5 +84,5 @@ class Orthography:
 		for phoneme in self.substitutions:
 			for grapheme in self.substitutions[phoneme]:
 				text = text.replace(grapheme, phoneme)
-		text = re.sub(r'([cjlmpqstwxyz])\1', r'\1', text) #remove double consonants except <l>
+		text = re.sub(r'([cjlmpqstwxyz])\1', r'\1', text) #remove double consonants
 		return text
