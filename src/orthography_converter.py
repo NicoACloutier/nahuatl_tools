@@ -45,7 +45,7 @@ class Orthography:
 		`self.substitutions: dict[str, list[str]]`: direct substitutions. Keys are graphemes in common orthography, values are list of reps in other.
 	'''
 
-	def __init__(self, uses_c: bool, has_doubles: bool, substitutions: dict[str, list[str]]) -> None:
+	def __init__(self, uses_c: bool, substitutions: dict[str, list[str]]) -> None:
 		'''
 		Create an orthography object.
 		Arguments:

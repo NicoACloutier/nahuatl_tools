@@ -1,21 +1,22 @@
 import typing, re
 
 #verb morphemes
-NEGATION_PREFIXES_V = ['ax'] #prefixes used for negation
+NEGATION_PREFIXES_V = ['ax', 'amo'] #prefixes used for negation
 TENSE_PREFIXES_V = ['o'] #past tense prefix.
 SUBJECT_PREFIXES_V = ['ni', 'ti', 'in', 'xi'] #prefixes used to mark subjects
 REFLEXIVE_PREFIXES_V = ['no', 'mo'] #prefixes used to mark reflexives
 OBJECT_PREFIXES_V = ['nec', 'miz', 'tec', 'kin', 'ki', 'k', 'j', 'te', 'La'] #prefixes used to mark objects
 
 DIRECTIONAL_SUFFIXES_V = ['ti', 'to', 'ki', 'ko'] #suffixes used to mark directionals
-NUMBER_TENSE_SUFFIXES_V = ['j', 'k', 'se', 's'] #suffixes used to mark tense and number
+NUMBER_SUFFIXES_V = ['j'] #suffixes used to mark number
+TENSE_SUFFIXES_V = ['se', 's', 'yaya', 'ktok', 'jtok', 'toya', 'k', 'ke'] #suffixes used to mark tense or aspect
 
 #noun morphemes
 GENITIVE_PREFIXES_N = ['no', 'mo', 'to', 'inin', 'ini', 'in', 'i', 'imo'] #prefixes used to mark possession
 
-ABSOLUTIVE_SUFFIXES_N = {'tli': 'tli', 'tl': 'tl', '(?<=[l])i': 'i', '(?!<=[z])in': 'in'} #suffixes used to mark the absolutive (uses RegEx)
-PLURAL_SUFFIXES_N = ['mej', 'me', 'wan', 'wa'] #suffixes used to mark the plural
-DIMINUTIVE_SUFFIXES_N = ['zin', 'zi'] #suffixes used to mark the diminutive
+ABSOLUTIVE_SUFFIXES_N = {'Li': 'Li', 'L': 'L', '(?<=[l])i': 'i', '(?!<=[z])in': 'in', 'me': 'me', 'mej': 'mej'} #suffixes used to mark the absolutive (uses RegEx)
+PLURAL_SUFFIXES_N = ['mej', 'me', 'wan', 'wa', 'yo'] #suffixes used to mark the plural and genitive
+DIMINUTIVE_SUFFIXES_N = ['zizin', 'zinzin', 'zin', 'zizi', 'zi'] #suffixes used to mark the diminutive
 
 def search_prefix(word: str, prefixes: list[str]) -> tuple[str, typing.Optional[str]]:
 	'''
@@ -88,7 +89,17 @@ def lemmatize_noun(noun: str) -> str:
 	noun, absolutive = search_absolutive(noun)
 	return noun if absolutive else lemmatize_word(noun, [GENITIVE_PREFIXES_N], [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N])
 
-def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]]) -> list[str]:
+def lemmatize_verb(verb: str) -> str:
+	'''
+	Lemmatize a noun.
+	Arguments:
+		`noun: str`: the noun to lemmatize.
+	Returns:
+		`str`: the lemma of the noun.
+	'''
+	return lemmatize_word(verb, [NEGATION_PREFIXES_V, SUBJECT_PREFIXES_V, REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V], [DIRECTIONAL_SUFFIXES_V, NUMBER_TENSE_SUFFIXES_V])
+
+def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]]) -> tuple[list[str], str]:
 	'''
 	Split a word into its component morphemes.
 	Arguments:
@@ -112,9 +123,9 @@ def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]]) 
 
 	morphemes.append(word)
 	morphemes += found_suffixes[::-1]
-	return morphemes
+	return morphemes, word
 
-def parse_verb(verb: str) -> list[str]:
+def parse_verb(verb: str) -> tuple[list[str], str]:
 	'''
 	Parse a verb for morphemes.
 	Arguments:
@@ -123,9 +134,9 @@ def parse_verb(verb: str) -> list[str]:
 		`list[str]`: a list of morphemes in the verb.
 	'''
 	return parse_word(verb, [NEGATION_PREFIXES_V, SUBJECT_PREFIXES_V, REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V], 
-					  [DIRECTIONAL_SUFFIXES_V, NUMBER_TENSE_SUFFIXES_V])
+					  [NUMBER_SUFFIXES_V, DIRECTIONAL_SUFFIXES_V, TENSE_SUFFIXES_V]) 
 
-def parse_noun(noun: str) -> list[str]:
+def parse_noun(noun: str) -> tuple[list[str], str]:
 	'''
 	Parse a noun for morphemes.
 	Arguments:
@@ -133,5 +144,5 @@ def parse_noun(noun: str) -> list[str]:
 	Returns:
 		`list[str]`: the list of morphemes in the noun.
 	'''
-	noun, absolutive = search_absolutive(noun)
-	return [noun, absolutive] if absolutive else parse_word(noun, [GENITIVE_PREFIXES_N], [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N])
+	_, absolutive = search_absolutive(noun)
+	return parse_word(noun, [SUBJECT_PREFIXES_V], [ABSOLUTIVE_SUFFIXES_N]) if absolutive else parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N], [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N])
