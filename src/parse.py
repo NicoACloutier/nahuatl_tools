@@ -3,7 +3,7 @@ import typing, re
 #verb morphemes
 NEGATION_PREFIXES_V = ['ax', 'amo'] #prefixes used for negation
 TENSE_PREFIXES_V = ['o'] #past tense prefix.
-SUBJECT_PREFIXES_V = ['ni', 'ti', 'in', 'an', 'xi'] #prefixes used to mark subjects
+SUBJECT_PREFIXES_V = ['ni', 'ti', 'in', 'an', 'amo', 'xi'] #prefixes used to mark subjects
 REFLEXIVE_PREFIXES_V = ['no', 'mo'] #prefixes used to mark reflexives
 OBJECT_PREFIXES_V = ['nec', 'miz', 'tec', 'kin', 'mec', 'ki', 'k', 'j', 'te', 'La'] #prefixes used to mark objects
 
@@ -13,11 +13,12 @@ TENSE_SUFFIXES_V = ['se', 's', 'yaya', 'ktok', 'jtok', 'toya', 'k', 'ke'] #suffi
 
 #noun morphemes
 GENITIVE_PREFIXES_N = ['no', 'mo', 'to', 'inin', 'ini', 'in', 'i', 'imo'] #prefixes used to mark possession
+DIMINUTIVE_PREFIXES_N = ['pil'] #prefixes used to mark the diminutive
 
 ABSOLUTIVE_SUFFIXES_N = {'Li': 'Li', 'L': 'L', '(?<=[l])i': 'i', '(?!<=[z])in': 'in', 'me': 'me', 'mej': 'mej'} #suffixes used to mark the absolutive (uses RegEx)
 PLURAL_SUFFIXES_N = ['mej', 'me'] #suffixes used to mark the plural
-GENITIVE_SUFFIXES_N = ['wan', 'wa', 'yo']
-DIMINUTIVE_SUFFIXES_N = ['zizin', 'zinzin', 'zin', 'zizi', 'zi'] #suffixes used to mark the diminutive
+GENITIVE_SUFFIXES_N = ['wan', 'wa', 'yo'] #suffixes used with the genitive
+DIMINUTIVE_SUFFIXES_N = ['zizin', 'zinzin', 'zin', 'zizi', 'zi', 'pil'] #suffixes used to mark the diminutive
 
 def search_prefix(word: str, prefixes: list[str]) -> tuple[str, typing.Optional[str]]:
 	'''
@@ -101,7 +102,7 @@ def lemmatize_noun(noun: str) -> str:
 	if not absolutive:
 		_, genitive = search_genitive(noun)
 		suffixes = [DIMINUTIVE_SUFFIXES_N, GENITIVE_SUFFIXES_N] if genitive else [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N]
-		return parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N], suffixes)[1]
+		return parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N, DIMINUTIVE_PREFIXES_N], suffixes)[1]
 	else:
 		return parse_word(cut_noun, [SUBJECT_PREFIXES_V], [])[1]
 
@@ -165,7 +166,7 @@ def parse_noun(noun: str) -> tuple[list[str], str]:
 	if not absolutive:
 		_, genitive = search_genitive(noun)
 		suffixes = [DIMINUTIVE_SUFFIXES_N, GENITIVE_SUFFIXES_N] if genitive else [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N]
-		return parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N], suffixes)
+		return parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N, DIMINUTIVE_PREFIXES_N], suffixes)
 	else:
-		morphemes, lemma = parse_word(cut_noun, [SUBJECT_PREFIXES_V], [])
+		morphemes, lemma = parse_word(cut_noun, [SUBJECT_PREFIXES_V, DIMINUTIVE_PREFIXES_N], [DIMINUTIVE_SUFFIXES_N])
 		return morphemes + [absolutive,], lemma
