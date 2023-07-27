@@ -3,9 +3,9 @@ import typing, re
 #verb morphemes
 NEGATION_PREFIXES_V = ['ax', 'amo'] #prefixes used for negation
 TENSE_PREFIXES_V = ['o'] #past tense prefix.
-SUBJECT_PREFIXES_V = ['ni', 'ti', 'in', 'xi'] #prefixes used to mark subjects
+SUBJECT_PREFIXES_V = ['ni', 'ti', 'in', 'an', 'xi'] #prefixes used to mark subjects
 REFLEXIVE_PREFIXES_V = ['no', 'mo'] #prefixes used to mark reflexives
-OBJECT_PREFIXES_V = ['nec', 'miz', 'tec', 'kin', 'ki', 'k', 'j', 'te', 'La'] #prefixes used to mark objects
+OBJECT_PREFIXES_V = ['nec', 'miz', 'tec', 'kin', 'mec', 'ki', 'k', 'j', 'te', 'La'] #prefixes used to mark objects
 
 DIRECTIONAL_SUFFIXES_V = ['ti', 'to', 'ki', 'ko'] #suffixes used to mark directionals
 NUMBER_SUFFIXES_V = ['j'] #suffixes used to mark number
@@ -97,11 +97,13 @@ def lemmatize_noun(noun: str) -> str:
 	Returns:
 		`str`: the lemma of the noun.
 	'''
-	_, absolutive = search_absolutive(noun)
+	cut_noun, absolutive = search_absolutive(noun)
 	if not absolutive:
 		_, genitive = search_genitive(noun)
 		suffixes = [DIMINUTIVE_SUFFIXES_N, GENITIVE_SUFFIXES_N] if genitive else [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N]
-	return lemmatize_word(noun, [SUBJECT_PREFIXES_V], [ABSOLUTIVE_SUFFIXES_N]) if absolutive else lemmatize_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N], suffixes)
+		return parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N], suffixes)[1]
+	else:
+		return parse_word(cut_noun, [SUBJECT_PREFIXES_V], [])[1]
 
 def lemmatize_verb(verb: str) -> str:
 	'''
@@ -159,8 +161,11 @@ def parse_noun(noun: str) -> tuple[list[str], str]:
 	Returns:
 		`list[str]`: the list of morphemes in the noun.
 	'''
-	_, absolutive = search_absolutive(noun)
+	cut_noun, absolutive = search_absolutive(noun)
 	if not absolutive:
 		_, genitive = search_genitive(noun)
 		suffixes = [DIMINUTIVE_SUFFIXES_N, GENITIVE_SUFFIXES_N] if genitive else [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N]
-	return parse_word(noun, [SUBJECT_PREFIXES_V], [ABSOLUTIVE_SUFFIXES_N]) if absolutive else parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N], suffixes)
+		return parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N], suffixes)
+	else:
+		morphemes, lemma = parse_word(cut_noun, [SUBJECT_PREFIXES_V], [])
+		return morphemes + [absolutive,], lemma
