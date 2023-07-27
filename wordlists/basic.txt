@@ -49,3 +49,5 @@ wan
 ka
 pa
 pan
+nepa
+ompa
