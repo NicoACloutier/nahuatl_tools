@@ -21,6 +21,13 @@ def is_verb_rb(word: str, verb_list: list[str], non_verb_list: list[str]) -> boo
 	elif noun_lemma not in non_verb_list and verb_lemma in verb_list:
 		return True
 
+	#check for both object and subject prefixes
+	temp_word, prefix = parse.search_prefix(word, parse.SUBJECT_PREFIXES_V)
+	if prefix:
+		_, obj_prefix = parse.search_prefix(temp_word, parse.OBJECT_PREFIXES_V)
+		if obj_prefix:
+			return True
+
 	#check for an absolutive suffix
 	if absolutive:
 		return False
