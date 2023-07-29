@@ -1,7 +1,11 @@
 import sys, typing
 from .. import parse
 
-def is_verb_rb(word: str, verb_list: list[str], non_verb_list: list[str]) -> typing.Optional[bool]:
+COMMON_SUFFIXES = ['ko', 's']
+PLURAL_VERB_PREFIXES = ['ti', 'ti', 'in', 'an']
+VERB_ENDINGS = ['owa', 'iya', 'oa', 'ia']
+
+def is_verb_rb(word: str, verb_list: typing.Union[list[str], set[str]], non_verb_list: typing.Union[list[str], set[str]],) -> typing.Optional[bool]:
 	'''
 	Rules-based algorithm to determine whether a Nahuatl word is a verb.
 	Arguments:
@@ -11,6 +15,7 @@ def is_verb_rb(word: str, verb_list: list[str], non_verb_list: list[str]) -> typ
 	Returns:
 		`bool`: whether or not the word is a verb.
 	'''
+	verb_list, non_verb_list = (set(verb_list), set(non_verb_list)) if verb_list is list or non_verb_list is list else (verb_list, non_verb_list)
 	noun_morphemes, noun_lemma = parse.parse_noun(word)
 	verb_morphemes, verb_lemma = parse.parse_verb(word)
 	noun_lemma_pos, verb_lemma_pos = noun_morphemes.index(noun_lemma), verb_morphemes.index(verb_lemma)
@@ -22,6 +27,10 @@ def is_verb_rb(word: str, verb_list: list[str], non_verb_list: list[str]) -> typ
 	elif noun_lemma not in non_verb_list and verb_lemma in verb_list:
 		return True
 
+	#check for an absolutive suffix
+	if absolutive:
+		return False
+
 	#check for both object and subject prefixes
 	temp_word, prefix = parse.search_prefix(word, parse.SUBJECT_PREFIXES_V)
 	if prefix:
@@ -29,17 +38,17 @@ def is_verb_rb(word: str, verb_list: list[str], non_verb_list: list[str]) -> typ
 		if obj_prefix:
 			return True
 
-	#check for an absolutive suffix
-	if absolutive:
-		return False
+	#check for plural ending to verb and plural signifier
+	if verb_morphemes[:-1] in parse.NUMBER_SUFFIXES_V and any(prefix in verb_morphemes[:verb_lemma_pos] for prefix in PLURAL_VERB_PREFIXES):
+		return True
 
-	#check for verb endings
-	if verb_lemma.endswith('oa') or verb_lemma.endswith('ia') or verb_morphemes[0] == 'xi':
+	#check for verb endings and optative prefix
+	if verb_morphemes[0] == 'xi' or any(verb_lemma.endswith(ending) for ending in VERB_ENDINGS):
 		return True
 
 	#check for tense and directional suffixes
 	for suffix in parse.TENSE_SUFFIXES_V + parse.DIRECTIONAL_SUFFIXES_V:
-		if suffix in verb_morphemes[verb_lemma_pos:] and suffix != 'ko':
+		if suffix in verb_morphemes[verb_lemma_pos:] and suffix not in COMMON_SUFFIXES:
 			return True
 
 	#check for object prefixes
@@ -53,5 +62,9 @@ def is_verb_rb(word: str, verb_list: list[str], non_verb_list: list[str]) -> typ
 
 	if any(suffix in noun_morphemes[noun_lemma_pos:] for suffix in parse.DIMINUTIVE_SUFFIXES_N):
 		return False
+
+	for prefix in parse.SUBJECT_PREFIXES_V:
+		if prefix in verb_morphemes[:verb_lemma_pos] and any(suffix in verb_morphemes[verb_lemma_pos:] for suffix in COMMON_SUFFIXES):
+			return True
 
 	return None
