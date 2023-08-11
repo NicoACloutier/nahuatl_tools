@@ -1,19 +1,19 @@
 import sys, typing
-from .. import parse
+import parse
 
 COMMON_SUFFIXES = ['ko', 's']
 PLURAL_VERB_PREFIXES = ['ti', 'ti', 'in', 'an']
 VERB_ENDINGS = ['owa', 'iya', 'oa', 'ia']
 
-def is_verb_rb(word: str, verb_list: typing.Union[list[str], set[str]], non_verb_list: typing.Union[list[str], set[str]],) -> typing.Optional[bool]:
+def is_verb_rb(word: str, verb_list: typing.Union[list[str], set[str]], non_verb_list: typing.Union[list[str], set[str]]) -> typing.Optional[bool]:
     '''
     Rules-based algorithm to determine whether a Nahuatl word is a verb.
     Arguments:
         `word: str`: the word to make the determination on.
-        `verb_list: list[str]`: the list of verb lemmas.
-        `non_verb_list: list[str]`: the list of non-verb lemmas.
+        `verb_list: typing.Union[list[str], set[str]]`: the list of verb lemmas.
+        `non_verb_list: typing.Union[list[str], set[str]]`: the list of non-verb lemmas.
     Returns:
-        `bool`: whether or not the word is a verb.
+        `typing.Optional[bool]`: whether or not the word is a verb. If it cannot be determined, returns `None`.
     '''
     verb_list, non_verb_list = (set(verb_list), set(non_verb_list)) if verb_list is list or non_verb_list is list else (verb_list, non_verb_list)
     noun_morphemes, noun_lemma = parse.parse_noun(word)
@@ -33,6 +33,9 @@ def is_verb_rb(word: str, verb_list: typing.Union[list[str], set[str]], non_verb
         _, obj_prefix = parse.search_prefix(temp_word, [item for item in parse.OBJECT_PREFIXES_V if item != 'te' and item != 'La'])
         if obj_prefix:
             return True
+    
+    if word.startswith('kii'):
+        return True
 
     #check for an absolutive suffix
     if absolutive:

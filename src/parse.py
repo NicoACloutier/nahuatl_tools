@@ -9,6 +9,7 @@ SUBJECT_PREFIXES_V = ['ni', 'ti', 'an', 'xi'] #prefixes used to mark subjects
 REFLEXIVE_PREFIXES_V = ['no', 'mo'] #prefixes used to mark reflexives
 OBJECT_PREFIXES_V = ['nec', 'miz', 'tec', 'kin', 'mec', 'ki', 'k', 'j', 'te', 'La'] #prefixes used to mark objects
 COMMON_PREFIXES_V = ['nel'] #common semantic prefixes
+DIRECTIONAL_PREFIXES_V = ['wal', 'on']
 
 DIRECTIONAL_SUFFIXES_V = ['ti', 'to', 'ki', 'ko'] #suffixes used to mark directionals
 NUMBER_SUFFIXES_V = ['j'] #suffixes used to mark number
@@ -118,7 +119,8 @@ def parse_verb(verb: str) -> tuple[list[str], str]:
         `list[str]`: a list of morphemes in the verb.
         `str`: the lemma of the verb.
     '''
-    morphemes, lemma = parse_word(verb, [NEGATION_PREFIXES_V, SUBJECT_PREFIXES_V, REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V], 
+    morphemes, lemma = parse_word(verb, [NEGATION_PREFIXES_V, SUBJECT_PREFIXES_V, REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V, 
+                                         COMMON_PREFIXES_V, DIRECTIONAL_PREFIXES_V], 
                       [NUMBER_SUFFIXES_V, DIRECTIONAL_SUFFIXES_V, TENSE_SUFFIXES_V, CAUSATIVE_SUFFIXES_V])
     if len(lemma) == 0 or (lemma[0] not in VOWELS and (len(lemma) == 1 or lemma[1] not in VOWELS)):
         lemma_index = morphemes.index(lemma)
