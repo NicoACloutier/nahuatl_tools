@@ -20,38 +20,41 @@ CAUSATIVE_SUFFIXES_V = ['ltia', 'lti', 'ti'] #suffixes used to mark the causativ
 GENITIVE_PREFIXES_N = ['no', 'mo', 'to', 'inin', 'ini', 'in', 'i', 'imo'] #prefixes used to mark possession
 DIMINUTIVE_PREFIXES_N = ['pil'] #prefixes used to mark the diminutive
 
-ABSOLUTIVE_SUFFIXES_N = {'Li': 'Li', 'L': 'L', '(?<=[l])i': 'i', '(?!<=[z])in': 'in', 'me': 'me', 'mej': 'mej'} #suffixes used to mark the absolutive (uses RegEx)
+ABSOLUTIVE_SUFFIXES_N = {'(?<!=[aeiou])Li': 'Li', '(?<=[aeiou])L': 'L', '(?<=[l])i': 'i', '(?!<=[z])in': 'in', 'me': 'me', 'mej': 'mej'} #suffixes used to mark the absolutive (uses RegEx)
 PLURAL_SUFFIXES_N = ['mej', 'me'] #suffixes used to mark the plural
 GENITIVE_SUFFIXES_N = ['wan', 'wa', 'yo'] #suffixes used with the genitive
 DIMINUTIVE_SUFFIXES_N = ['zizin', 'zinzin', 'zin', 'zizi', 'zi', 'pil'] #suffixes used to mark the diminutive
 
-def search_prefix(word: str, prefixes: list[str]) -> tuple[str, typing.Optional[str]]:
+def search_prefix(word: str, prefixes: typing.Union[list[str], dict[str, str]]) -> tuple[str, typing.Optional[str]]:
     '''
     Search a word for a prefix among a list of mutually exclusive prefixes.
     Arguments:
         `word: str`: the word to find prefixes in.
-        `prefixes: list[str]`: a list of mutually exclusive prefixes to search for.
+        `prefixes: typing.Union[list[str], dict[str, str]]`: a list of mutually exclusive prefixes to search for, or dict with RegEx keys/plain values if RegEx used.
     Returns:
         `str`: modified string without found prefix or original string if none found.
         `typing.Optional[str]`: prefix found or `None` if none found.
     '''
+    use_regex = isinstance(prefixes, dict)
+    search = (lambda word, prefix: bool(re.search(f'^{prefix}', word))) if use_regex else (lambda word, prefix: word.startswith(prefix))
     for prefix in prefixes:
-        if word.startswith(prefix):
-            word = word[len(prefix):]
-            return word, prefix
+        if search(word, prefix):
+            used_prefix = prefixes[prefix] if use_regex else prefix
+            word = word[len(used_prefix):]
+            return word, used_prefix
     return word, None
 
-def search_suffix(word: str, suffixes: typing.Union[list[str], dict[str, str]], use_regex: bool = False) -> tuple[str, typing.Optional[str]]:
+def search_suffix(word: str, suffixes: typing.Union[list[str], dict[str, str]]) -> tuple[str, typing.Optional[str]]:
     '''
     Search a word for a suffix among a list of mutually exclusive suffixes.
     Arguments:
         `word: str`: the word to find suffixes in.
         `suffixes: typing.Union[list[str], dict[str, str]]`: list of mutually exclusive suffixes to find, or dict with RegEx keys/plain values if RegEx used.
-        `use_regex: bool = False`: whether to use regex for the suffixes.
     Returns:
         `str`: modified string without found suffix or original string if none found.
         `typing.Optional[str]`: suffix found or `None` if none found.
     '''
+    use_regex = isinstance(suffixes, dict)
     search = (lambda word, suffix: bool(re.search(f'{suffix}$', word))) if use_regex else (lambda word, suffix: word.endswith(suffix))
     for suffix in suffixes:
         if search(word, suffix):
@@ -70,7 +73,7 @@ def search_absolutive(noun: str) -> tuple[str, typing.Optional[str]]:
         `str`: noun without absolutive if absolutive present, otherwise initial noun.
         `typing.Optional[str]`: absolutive if present otherwise `None`.
     '''
-    return search_suffix(noun, ABSOLUTIVE_SUFFIXES_N, use_regex=True)
+    return search_suffix(noun, ABSOLUTIVE_SUFFIXES_N)
 
 def search_genitive(noun: str) -> tuple[str, typing.Optional[str]]:
     '''
@@ -110,6 +113,17 @@ def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]]) 
     morphemes += found_suffixes[::-1]
     return morphemes, word
 
+def join_on_illegal_sequence(morphemes: list[str], lemma: str) -> tuple[list[str], str]:
+    '''
+    '''
+    if len(lemma) == 0 or (lemma[0] not in VOWELS and (len(lemma) == 1 or lemma[1] not in VOWELS)):
+        lemma_index = morphemes.index(lemma)
+        if lemma_index == 0:
+            return morphemes, lemma
+        lemma = morphemes[lemma_index-1] + lemma
+        morphemes = morphemes[:lemma_index-1] + [lemma,] + morphemes[lemma_index+1:]
+    return morphemes, lemma
+
 def parse_verb(verb: str) -> tuple[list[str], str]:
     '''
     Parse a verb for morphemes.
@@ -122,13 +136,7 @@ def parse_verb(verb: str) -> tuple[list[str], str]:
     morphemes, lemma = parse_word(verb, [NEGATION_PREFIXES_V, SUBJECT_PREFIXES_V, REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V, 
                                          COMMON_PREFIXES_V, DIRECTIONAL_PREFIXES_V], 
                       [NUMBER_SUFFIXES_V, DIRECTIONAL_SUFFIXES_V, TENSE_SUFFIXES_V, CAUSATIVE_SUFFIXES_V])
-    if len(lemma) == 0 or (lemma[0] not in VOWELS and (len(lemma) == 1 or lemma[1] not in VOWELS)):
-        lemma_index = morphemes.index(lemma)
-        if lemma_index == 0:
-            return morphemes, lemma
-        lemma = morphemes[lemma_index-1] + lemma
-        morphemes = morphemes[:lemma_index-1] + [lemma,] + morphemes[lemma_index+1:]
-    return morphemes, lemma
+    return join_on_illegal_sequence(morphemes, lemma)
 
 def lemmatize_verb(verb: str) -> str:
     '''
@@ -153,10 +161,10 @@ def parse_noun(noun: str) -> tuple[list[str], str]:
     if not absolutive:
         _, genitive = search_genitive(noun)
         suffixes = [DIMINUTIVE_SUFFIXES_N, GENITIVE_SUFFIXES_N] if genitive else [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N]
-        return parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N, DIMINUTIVE_PREFIXES_N], suffixes)
+        return join_on_illegal_sequence(*parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N, DIMINUTIVE_PREFIXES_N], suffixes))
     else:
         morphemes, lemma = parse_word(cut_noun, [SUBJECT_PREFIXES_V, DIMINUTIVE_PREFIXES_N], [DIMINUTIVE_SUFFIXES_N])
-        return morphemes + [absolutive,], lemma
+        return join_on_illegal_sequence(morphemes + [absolutive,], lemma)
 
 def lemmatize_noun(noun: str) -> str:
     '''
