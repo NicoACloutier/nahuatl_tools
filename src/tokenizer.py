@@ -1,5 +1,5 @@
 import typing
-from .parse import parse_noun, parse_verb, search_prefix
+from .parse import parse_noun, parse_verb, search_prefix, join_on_illegal_sequence
 from .orthography_converter import Orthography, MODERN, CLASSIC
 from .pos_tagger import is_verb_rb
 
@@ -72,11 +72,11 @@ def tokenize_text(text: str, basic: typing.Optional[list[str]] = None, verb_lemm
     
     #check for verb chaining if applicable
     if verb_compound_check:
-        parsed_words = [chaining_checker(word, verb_lemmas) for word in parsed_words]
+        parsed_words = [join_on_illegal_sequence(*chaining_checker(word, verb_lemmas)) for word in parsed_words]
     
     #check for noun incorporation/agglutination if applicable
     if noun_compound_check:
-        parsed_words = [agglutination_checker(word, noun_lemmas) for word in parsed_words]
+        parsed_words = [join_on_illegal_sequence(agglutination_checker(word, noun_lemmas), word[1])[0] for word in parsed_words]
         parsings = {word: parsed_words[i] for i, word in enumerate(words)}
         for basic_word in basic + noun_lemmas + verb_lemmas:
             parsings[basic_word] = [basic_word,]

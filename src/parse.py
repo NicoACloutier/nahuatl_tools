@@ -115,6 +115,13 @@ def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]]) 
 
 def join_on_illegal_sequence(morphemes: list[str], lemma: str) -> tuple[list[str], str]:
     '''
+    Join a lemma with the previous morpheme if that lemma begins with two consonants.
+    Arguments:
+        `morphemes: list[str]`: a list of morphemes in the word.
+        `lemma: str`: the lemma of the word.
+    Returns:
+        `list[str]`: the morphemes after joining the lemma on illegal sequences.
+        `str`: the lemma after being joined on illegal sequences.
     '''
     if len(lemma) == 0 or (lemma[0] not in VOWELS and (len(lemma) == 1 or lemma[1] not in VOWELS)):
         lemma_index = morphemes.index(lemma)
