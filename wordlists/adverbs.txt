@@ -75,7 +75,7 @@ ciltokisLi
 eixko
 ejeliwis
 eliwis
-etookisLi
+etokisLi
 ijnalok
 ijnalokoj
 ikaya
@@ -83,7 +83,7 @@ ilwika
 ipa
 izinLa
 ixko
-ixteenok
+ixtenok
 iyolik
 iyolko
 kalika
@@ -115,11 +115,11 @@ qiLapa
 mayanLa
 melawak
 miajka
-miajkaa
+miajka
 miciLa
 mickalko
 mila
-momaajko
+momajko
 mosotiLa
 naja
 najanopa
@@ -144,11 +144,11 @@ noponi
 noyoltipa
 olotiLa
 ompaya
-oonkaj
+onkaj
 osomajLa
 owamilko
 owatipa
-paantik
+pantik
 pajkalko
 pajnamakaloya
 panixko

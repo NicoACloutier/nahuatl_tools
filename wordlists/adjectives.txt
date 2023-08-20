@@ -310,7 +310,7 @@ sasaltik
 se
 sejtok
 selik
-selikoo
+seliko
 se
 semek
 sempa
@@ -329,7 +329,7 @@ takaltik
 tapasol
 tapasoltik
 tatakastik
-teenana
+tenana
 tejmatik
 tejnelzi
 tejpa
@@ -405,7 +405,7 @@ Lantepos
 Laonike
 Laoyal
 Lapa
-Lapacool
+Lapacol
 Lapantok
 Lapapaj
 Lapapazol
@@ -534,7 +534,7 @@ xoxowik
 xwqk
 yamanik
 yanqik
-yanqikooj
+yanqikoj
 yapaltik
 yawaltik
 yayawik

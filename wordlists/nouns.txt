@@ -32,7 +32,7 @@ akaLapis
 akaLapizal
 akaLasol
 akaLasoltiLa
-akatoojke
+akatojke
 akazana
 akazontejke
 akaxilo
@@ -150,7 +150,7 @@ awilijkayo
 awiltelpokayo
 awiltilis
 awilLajtol
-axiil
+axil
 axitilis
 axixkal
 axixkokolis
@@ -187,7 +187,7 @@ cicikayo
 cicilsawa
 cicilsoki
 cicimeke
-ciimi
+cimi
 cikicijke
 cikilici
 cikimeka
@@ -481,7 +481,7 @@ limo
 macijni
 macio
 mackone
-macoopi
+macopi
 maijwi
 maiste
 mai
@@ -513,7 +513,7 @@ mawiltijke
 maxLa
 mayan
 maya
-mees
+mes
 meka
 melawajkayo
 melawajLajtol
@@ -621,12 +621,12 @@ owazon
 owaxoci
 owijkayo
 pacijkayo
-pajciijke
+pajcijke
 pajnamakake
 paj
 pajtomi
-paakilisnamakake
-paakilis
+pakilisnamakake
+pakilis
 palacijwi
 palacnamakake
 palewilis
@@ -732,11 +732,11 @@ teapanoltijke
 tecici
 tecikawalis
 teciwilijke
-teeixkopinke
-teenakaspajtijke
-teenemilispoal
+teixkopinke
+tenakaspajtijke
+tenemilispoal
 teilamijkayo
-teeilewilis
+teilewilis
 teisLakawijke
 teix
 tejkis
@@ -818,7 +818,7 @@ tix
 toconayo
 tojmil
 toj
-tokaayo
+tokayo
 tokamacio
 toka
 tokazawal
@@ -830,9 +830,9 @@ tonalelo
 tonal
 tonalmil
 tonatik
-tookis
-tookoni
-topiil
+tokis
+tokoni
+topil
 topizi
 toLayi
 totokal
@@ -1092,7 +1092,7 @@ xokoyol
 xonakamil
 xonaka
 xopan
-yaal
+yal
 yakazol
 yawal
 yejna
