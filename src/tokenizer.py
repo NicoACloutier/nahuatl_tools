@@ -40,6 +40,17 @@ def chaining_checker(parse_output: tuple[list[str], str], verbs: list[str]) -> t
         return (parse_output[0][:lemma_ind] + [verb[:-1], 's', new_lemma] + parse_output[0][lemma_ind+1:], new_lemma)
     return parse_output
 
+def join_seq(analysis_result: tuple[list[str], str]) -> tuple[list[str], str]:
+    '''
+    Join a lemma on illegal sequences. Included for structural reasons.
+    Arguments:
+        `analysis_result: tuple[list[str], str]`: the result of running the morphological parser on a word.
+    Returns:
+        `list[str]`: the morpheme list without illegal sequences in lemma.
+        `str`: the lemma with no illegal sequences.
+    '''
+    return join_on_illegal_sequence(*analysis_result)
+
 def tokenize_text(text: str, basic: typing.Optional[list[str]] = None, verb_lemmas: typing.Optional[list[str]] = None, noun_lemmas: typing.Optional[list[str]] = None, 
                   noun_compound_check: bool = False, verb_compound_check: bool = False, convert_ortho: typing.Optional[typing.Union[Orthography, str]] = None) -> list[list[str]]:
     '''
@@ -57,6 +68,7 @@ def tokenize_text(text: str, basic: typing.Optional[list[str]] = None, verb_lemm
     basic = basic if basic else []
     verb_lemmas = verb_lemmas if verb_lemmas else []
     noun_lemmas = noun_lemmas if noun_lemmas else []
+    all = set(basic + noun_lemmas + verb_lemmas)
     
     #convert orthography if applicable
     if isinstance(convert_ortho, str):
@@ -69,14 +81,13 @@ def tokenize_text(text: str, basic: typing.Optional[list[str]] = None, verb_lemm
     classes = [is_verb_rb(word, verb_lemmas, noun_lemmas) for word in words]
     parsed_words = [(parse_verb(word) if classes[i] else parse_noun(word)) for i, word in enumerate(words)]
     
-    
     #check for verb chaining if applicable
     if verb_compound_check:
-        parsed_words = [join_on_illegal_sequence(*chaining_checker(word, verb_lemmas)) for word in parsed_words]
+        parsed_words = [join_seq(chaining_checker(word, verb_lemmas) if word[1] not in all else word) for word in parsed_words]
     
     #check for noun incorporation/agglutination if applicable
     if noun_compound_check:
-        parsed_words = [join_on_illegal_sequence(agglutination_checker(word, noun_lemmas), word[1])[0] for word in parsed_words]
+        parsed_words = [join_on_illegal_sequence(agglutination_checker(word, noun_lemmas) if word[1] not in all else word[0], word[1])[0] for word in parsed_words]
         parsings = {word: parsed_words[i] for i, word in enumerate(words)}
         for basic_word in basic + noun_lemmas + verb_lemmas:
             parsings[basic_word] = [basic_word,]
