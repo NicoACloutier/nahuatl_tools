@@ -10,7 +10,7 @@ def remove_empty(morphemes: list[str]) -> list[str]:
     '''Remove the empty strings in a list of morphemes.'''
     return [item for item in morphemes if item]
 
-def agglutination_checker(parse_output: tuple[list[str], str], nouns: list[str]) -> list[str]:
+def agglutination_checker(parse_output: tuple[list[str], str], nouns: list[str]) -> tuple[list[str], str]:
     '''
     Check for compound words given a list of initial candidates for the compound.
     Arguments:
@@ -22,8 +22,8 @@ def agglutination_checker(parse_output: tuple[list[str], str], nouns: list[str])
     lemma_ind = parse_output[0].index(parse_output[1])
     new_lemma, noun = search_prefix(parse_output[1], nouns)
     if noun:
-        return parse_output[0][:lemma_ind] + [noun, new_lemma] + parse_output[0][lemma_ind+1:]
-    return parse_output[0]
+        return (parse_output[0][:lemma_ind] + [noun, new_lemma] + parse_output[0][lemma_ind+1:]), new_lemma
+    return parse_output
 
 def chaining_checker(parse_output: tuple[list[str], str], verbs: list[str]) -> tuple[list[str], str]:
     '''
@@ -81,20 +81,16 @@ def tokenize_text(text: str, basic: typing.Optional[list[str]] = None, verb_lemm
     classes = [is_verb_rb(word, verb_lemmas, noun_lemmas) for word in words]
     parsed_words = [(parse_verb(word) if classes[i] else parse_noun(word)) for i, word in enumerate(words)]
     
+    #check for noun incorporation/agglutination if applicable
+    if noun_compound_check:
+        parsed_words = [(join_seq(agglutination_checker(word, noun_lemmas)) if word[1] not in all else word) for word in parsed_words]
+    
     #check for verb chaining if applicable
     if verb_compound_check:
         parsed_words = [join_seq(chaining_checker(word, verb_lemmas) if word[1] not in all else word) for word in parsed_words]
     
-    #check for noun incorporation/agglutination if applicable
-    if noun_compound_check:
-        parsed_words = [join_on_illegal_sequence(agglutination_checker(word, noun_lemmas) if word[1] not in all else word[0], word[1])[0] for word in parsed_words]
-        parsings = {word: parsed_words[i] for i, word in enumerate(words)}
-        for basic_word in basic + noun_lemmas + verb_lemmas:
-            parsings[basic_word] = [basic_word,]
-        return [remove_empty(parsings[word]) for word in text.split()]
-    
     #replace words in text
-    parsings = {word: parsed_words[i] for i, word in enumerate(words)}
+    parsings = {word: parsed_words[i][0] for i, word in enumerate(words)}
     for basic_word in basic + noun_lemmas + verb_lemmas:
         parsings[basic_word] = [basic_word,]
-    return [remove_empty(parsings[word][0]) for word in text.split()]
+    return [remove_empty(parsings[word]) for word in text.split()]
