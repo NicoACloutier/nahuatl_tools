@@ -86,13 +86,15 @@ def search_genitive(noun: str) -> tuple[str, typing.Optional[str]]:
     '''
     return search_prefix(noun, GENITIVE_PREFIXES_N)
 
-def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]]) -> tuple[list[str], str]:
+def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]], lemmas: typing.Optional[set[str]] = None) -> tuple[list[str], str]:
     '''
     Split a word into its component morphemes.
     Arguments:
         `word: str`: the word to gloss.
         `prefixes: list[list[str]]`: a list of lists of mutually exclusive prefixes in order of appearance from beginning.
         `suffixes: list[list[str]]`: a list of lists of mutually exclusive suffixes in order of appearance from end.
+        Optional:
+        `lemmas: typing.Optional[set[str]] = None`: a set of lemmas to check for.
     Returns:
         `list[str]`: the list of morphemes in the word.
         `str`: the lemma of the word.
@@ -102,12 +104,19 @@ def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]]) 
         word, prefix = search_prefix(word, prefix_list)
         if prefix:
             morphemes.append(prefix)
+        if word in lemmas:
+            morphemes.append(word)
+            return morphemes, word
 
     found_suffixes = []
     for suffix_list in suffixes:
         word, suffix = search_suffix(word, suffix_list)
         if suffix:
             found_suffixes.append(suffix)
+        if word in lemmas:
+            morphemes.append(word)
+            morphemes += found_suffixes[::-1]
+            return morphemes, word
 
     morphemes.append(word)
     morphemes += found_suffixes[::-1]
@@ -131,11 +140,13 @@ def join_on_illegal_sequence(morphemes: list[str], lemma: str) -> tuple[list[str
         morphemes = morphemes[:lemma_index-1] + [lemma,] + morphemes[lemma_index+1:]
     return morphemes, lemma
 
-def parse_verb(verb: str) -> tuple[list[str], str]:
+def parse_verb(verb: str, lemmas: typing.Optional[set[str]] = None) -> tuple[list[str], str]:
     '''
     Parse a verb for morphemes.
     Arguments:
         `verb: str`: the verb to be parsed.
+        Optional:
+        `lemmas: typing.Optional[set[str]] = None`: a set of lemmas to check for.
     Returns:
         `list[str]`: a list of morphemes in the verb.
         `str`: the lemma of the verb.
@@ -145,21 +156,25 @@ def parse_verb(verb: str) -> tuple[list[str], str]:
                       [NUMBER_SUFFIXES_V, DIRECTIONAL_SUFFIXES_V, TENSE_SUFFIXES_V, CAUSATIVE_SUFFIXES_V])
     return join_on_illegal_sequence(morphemes, lemma)
 
-def lemmatize_verb(verb: str) -> str:
+def lemmatize_verb(verb: str, lemmas: typing.Optional[set[str]] = None) -> str:
     '''
     Lemmatize a verb.
     Arguments:
         `verb: str`: the verb to lemmatize.
+        Optional:
+        `lemmas: typing.Optional[set[str]] = None`: a set of lemmas to check for.
     Returns:
         `str`: the lemma of the verb.
     '''
     return parse_verb(verb)[1]
 
-def parse_noun(noun: str) -> tuple[list[str], str]:
+def parse_noun(noun: str, lemmas: typing.Optional[set[str]] = None) -> tuple[list[str], str]:
     '''
     Parse a noun for morphemes.
     Arguments:
         `noun: str`: the noun to be parsed.
+        Optional:
+        `lemmas: typing.Optional[set[str]] = None`: a set of lemmas to check for.
     Returns:
         `list[str]`: the list of morphemes in the noun.
         `str`: the lemma of the noun.
@@ -173,11 +188,13 @@ def parse_noun(noun: str) -> tuple[list[str], str]:
         morphemes, lemma = parse_word(cut_noun, [SUBJECT_PREFIXES_V, DIMINUTIVE_PREFIXES_N], [DIMINUTIVE_SUFFIXES_N])
         return join_on_illegal_sequence(morphemes + [absolutive,], lemma)
 
-def lemmatize_noun(noun: str) -> str:
+def lemmatize_noun(noun: str, lemmas: typing.Optional[set[str]] = None) -> str:
     '''
     Lemmatize a noun.
     Arguments:
         `noun: str`: the noun to lemmatize.
+        Optional:
+        `lemmas: typing.Optional[set[str]] = None`: a set of lemmas to check for.
     Returns:
         `str`: the lemma of the noun.
     '''
