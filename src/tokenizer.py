@@ -52,16 +52,19 @@ def join_seq(analysis_result: tuple[list[str], str]) -> tuple[list[str], str]:
     return join_on_illegal_sequence(*analysis_result)
 
 def tokenize_text(text: str, basic: typing.Optional[list[str]] = None, verb_lemmas: typing.Optional[list[str]] = None, noun_lemmas: typing.Optional[list[str]] = None, 
-                  noun_compound_check: bool = False, verb_compound_check: bool = False, convert_ortho: typing.Optional[typing.Union[Orthography, str]] = None) -> list[list[str]]:
+                  noun_compound_check: bool = False, verb_compound_check: bool = False, convert_ortho: typing.Optional[typing.Union[Orthography, str]] = None, 
+                  step_lemma_check: bool = False) -> list[list[str]]:
     '''
     Perform the complete tokenization process on a Nahuatl text.
     Arguments:
         `text: str`: the full text to be converted, with spaces in between words.
+        Optional:
         `basic: typing.Optional[list[str]] = None`: a list of basic words not to be parsed at all.
         `verb_lemmas: typing.Optional[list[str]] = None`: a list of verb lemmas to be used for analysis.
         `noun_lemmas: typing.Optional[list[str]] = None`: a list of noun lemmas to be used for analysis.
         `agglutination_check: bool = False`: whether or not to check for noun incorporation and compounding. Does not by default.
         `convert_ortho: typing.Optional[typing.Union[Orthography, str]] = None`: the orthography used to convert text, or the string 'modern' or 'classical' for pre-built orthographies, or `None`, meaning no orthography conversion will occur.
+        `step_lemma_check: bool = False`: whether to check for lemmas at each step. Requires a list of lemmas provided for both nouns and verbs.
     Returns:
         `list[list[str]]`: a list of lists of morphemes in each word in the text.
     '''
@@ -79,7 +82,7 @@ def tokenize_text(text: str, basic: typing.Optional[list[str]] = None, verb_lemm
     #do the actual parsing
     words = [word for word in list(set(text.split())) if word not in basic and word not in verb_lemmas and word not in noun_lemmas]
     classes = [is_verb_rb(word, verb_lemmas, noun_lemmas) for word in words]
-    parsed_words = [(parse_verb(word) if classes[i] else parse_noun(word)) for i, word in enumerate(words)]
+    parsed_words = [(parse_verb(word, set(verb_lemmas) if verb_lemmas else None) if classes[i] else parse_noun(word, set(noun_lemmas) if noun_lemmas else None)) for i, word in enumerate(words)]
     
     #check for noun incorporation/agglutination if applicable
     if noun_compound_check:

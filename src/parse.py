@@ -104,7 +104,7 @@ def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]], 
         word, prefix = search_prefix(word, prefix_list)
         if prefix:
             morphemes.append(prefix)
-        if word in lemmas:
+        if lemmas and word in lemmas:
             morphemes.append(word)
             return morphemes, word
 
@@ -113,7 +113,7 @@ def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]], 
         word, suffix = search_suffix(word, suffix_list)
         if suffix:
             found_suffixes.append(suffix)
-        if word in lemmas:
+        if lemmas and word in lemmas:
             morphemes.append(word)
             morphemes += found_suffixes[::-1]
             return morphemes, word
@@ -153,7 +153,7 @@ def parse_verb(verb: str, lemmas: typing.Optional[set[str]] = None) -> tuple[lis
     '''
     morphemes, lemma = parse_word(verb, [NEGATION_PREFIXES_V, SUBJECT_PREFIXES_V, REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V, 
                                          COMMON_PREFIXES_V, DIRECTIONAL_PREFIXES_V], 
-                      [NUMBER_SUFFIXES_V, DIRECTIONAL_SUFFIXES_V, TENSE_SUFFIXES_V, CAUSATIVE_SUFFIXES_V])
+                      [NUMBER_SUFFIXES_V, DIRECTIONAL_SUFFIXES_V, TENSE_SUFFIXES_V, CAUSATIVE_SUFFIXES_V], lemmas=lemmas)
     return join_on_illegal_sequence(morphemes, lemma)
 
 def lemmatize_verb(verb: str, lemmas: typing.Optional[set[str]] = None) -> str:
@@ -166,7 +166,7 @@ def lemmatize_verb(verb: str, lemmas: typing.Optional[set[str]] = None) -> str:
     Returns:
         `str`: the lemma of the verb.
     '''
-    return parse_verb(verb)[1]
+    return parse_verb(verb, lemmas=lemmas)[1]
 
 def parse_noun(noun: str, lemmas: typing.Optional[set[str]] = None) -> tuple[list[str], str]:
     '''
@@ -183,9 +183,9 @@ def parse_noun(noun: str, lemmas: typing.Optional[set[str]] = None) -> tuple[lis
     if not absolutive:
         _, genitive = search_genitive(noun)
         suffixes = [DIMINUTIVE_SUFFIXES_N, GENITIVE_SUFFIXES_N] if genitive else [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N]
-        return join_on_illegal_sequence(*parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N, DIMINUTIVE_PREFIXES_N], suffixes))
+        return join_on_illegal_sequence(*parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N, DIMINUTIVE_PREFIXES_N], suffixes, lemmas=lemmas))
     else:
-        morphemes, lemma = parse_word(cut_noun, [SUBJECT_PREFIXES_V, DIMINUTIVE_PREFIXES_N], [DIMINUTIVE_SUFFIXES_N])
+        morphemes, lemma = parse_word(cut_noun, [SUBJECT_PREFIXES_V, DIMINUTIVE_PREFIXES_N], [DIMINUTIVE_SUFFIXES_N], lemmas=lemmas)
         return join_on_illegal_sequence(morphemes + [absolutive,], lemma)
 
 def lemmatize_noun(noun: str, lemmas: typing.Optional[set[str]] = None) -> str:
@@ -198,4 +198,4 @@ def lemmatize_noun(noun: str, lemmas: typing.Optional[set[str]] = None) -> str:
     Returns:
         `str`: the lemma of the noun.
     '''
-    return parse_noun(noun)[1]
+    return parse_noun(noun, lemmas=lemmas)[1]
