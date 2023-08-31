@@ -63,6 +63,7 @@ def tokenize_text(text: str, basic: typing.Optional[list[str]] = None, verb_lemm
         `verb_lemmas: typing.Optional[list[str]] = None`: a list of verb lemmas to be used for analysis.
         `noun_lemmas: typing.Optional[list[str]] = None`: a list of noun lemmas to be used for analysis.
         `agglutination_check: bool = False`: whether or not to check for noun incorporation and compounding. Does not by default.
+        `verb_compound_check: bool = False`: whether or not to check for compounded verbs e.g. <ciwasneki>.
         `convert_ortho: typing.Optional[typing.Union[Orthography, str]] = None`: the orthography used to convert text, or the string 'modern' or 'classical' for pre-built orthographies, or `None`, meaning no orthography conversion will occur.
         `step_lemma_check: bool = False`: whether to check for lemmas at each step. Requires a list of lemmas provided for both nouns and verbs.
     Returns:
