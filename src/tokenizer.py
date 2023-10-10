@@ -5,6 +5,7 @@ from .pos_tagger import is_verb_rb
 
 ORTHO_DICT = {'modern': Orthography(uses_c=False, substitutions=MODERN),
               'classical': Orthography(uses_c=True, substitutions=CLASSIC),}
+VOWELS = 'aeiou'
 
 def remove_empty(morphemes: list[str]) -> list[str]:
     '''Remove the empty strings in a list of morphemes.'''
@@ -53,7 +54,7 @@ def join_seq(analysis_result: tuple[list[str], str]) -> tuple[list[str], str]:
 
 def tokenize_text(text: str, basic: typing.Optional[list[str]] = None, verb_lemmas: typing.Optional[list[str]] = None, noun_lemmas: typing.Optional[list[str]] = None, 
                   noun_compound_check: bool = False, verb_compound_check: bool = False, convert_ortho: typing.Optional[typing.Union[Orthography, str]] = None, 
-                  step_lemma_check: bool = False) -> list[list[str]]:
+                  step_lemma_check: bool = False, reduplicate_nouns: bool = False) -> list[list[str]]:
     '''
     Perform the complete tokenization process on a Nahuatl text.
     Arguments:
@@ -66,9 +67,14 @@ def tokenize_text(text: str, basic: typing.Optional[list[str]] = None, verb_lemm
         `verb_compound_check: bool = False`: whether or not to check for compounded verbs e.g. <ciwasneki>.
         `convert_ortho: typing.Optional[typing.Union[Orthography, str]] = None`: the orthography used to convert text, or the string 'modern' or 'classical' for pre-built orthographies, or `None`, meaning no orthography conversion will occur.
         `step_lemma_check: bool = False`: whether to check for lemmas at each step. Requires a list of lemmas provided for both nouns and verbs.
+        `reduplicate_nouns: bool = False`: take each noun in the noun list and partially reduplicate it according to Nahuatl rules.
     Returns:
         `list[list[str]]`: a list of lists of morphemes in each word in the text.
     '''
+    if reduplicate_nouns:
+        print([noun[:min(noun.index(vowel) for vowel in [vowel for vowel in VOWELS if vowel in noun])+1]+noun for noun in noun_lemmas if any(vowel in noun for vowel in VOWELS)])
+        noun_lemmas += [noun[:min(noun.index(vowel) for vowel in [vowel for vowel in VOWELS if vowel in noun])+1]+noun for noun in noun_lemmas if any(vowel in noun for vowel in VOWELS)]
+    
     basic = basic if basic else []
     verb_lemmas = verb_lemmas if verb_lemmas else []
     noun_lemmas = noun_lemmas if noun_lemmas else []
