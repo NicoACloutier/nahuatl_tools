@@ -156,6 +156,7 @@ axixkal
 axixkokolis
 axixtekomi
 axix
+axka
 axkanel
 axkanelpozal
 axoko
@@ -592,6 +593,7 @@ nextamal
 nextilis
 nex
 neyolkokolis
+noci
 nojpal
 ojmaxal
 ojpana
@@ -825,6 +827,7 @@ tokazawal
 toma
 tomawajkayo
 tomi
+tomin
 tonalama
 tonalelo
 tonal
