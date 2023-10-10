@@ -11,9 +11,9 @@ OBJECT_PREFIXES_V = ['nec', 'miz', 'tec', 'kin', 'mec', 'ki', 'k', 'j', 'te', 'L
 COMMON_PREFIXES_V = ['nel'] #common semantic prefixes
 DIRECTIONAL_PREFIXES_V = ['wal', 'on']
 
-DIRECTIONAL_SUFFIXES_V = ['ti', 'to', 'ki', 'ko'] #suffixes used to mark directionals
 NUMBER_SUFFIXES_V = ['j'] #suffixes used to mark number
-TENSE_SUFFIXES_V = ['se', 's', 'yaya', 'ktok', 'jtok', 'toya', 'k', 'ke'] #suffixes used to mark tense or aspect
+DIRECTIONAL_SUFFIXES_V = ['ti', 'to', 'ki', 'ko'] #suffixes used to mark directionals
+TENSE_SUFFIXES_V = ['se', 's', 'yaya', 'ktok', 'jtok', 'toya', 'k', 'ke', 'ya'] #suffixes used to mark tense or aspect
 CAUSATIVE_SUFFIXES_V = ['ltia', 'lti', 'ti'] #suffixes used to mark the causative
 
 #noun morphemes
@@ -151,7 +151,7 @@ def parse_verb(verb: str, lemmas: typing.Optional[set[str]] = None) -> tuple[lis
         `list[str]`: a list of morphemes in the verb.
         `str`: the lemma of the verb.
     '''
-    morphemes, lemma = parse_word(verb, [NEGATION_PREFIXES_V, SUBJECT_PREFIXES_V, REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V, 
+    morphemes, lemma = parse_word(verb, [NEGATION_PREFIXES_V, TENSE_PREFIXES_V, SUBJECT_PREFIXES_V, REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V, 
                                          COMMON_PREFIXES_V, DIRECTIONAL_PREFIXES_V], 
                       [NUMBER_SUFFIXES_V, DIRECTIONAL_SUFFIXES_V, TENSE_SUFFIXES_V, CAUSATIVE_SUFFIXES_V], lemmas=lemmas)
     return join_on_illegal_sequence(morphemes, lemma)
