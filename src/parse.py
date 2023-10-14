@@ -4,17 +4,18 @@ VOWELS = ['a', 'e', 'i', 'o', 'u']
 
 #verb morphemes
 NEGATION_PREFIXES_V = ['ax'] #prefixes used for negation
-TENSE_PREFIXES_V = ['o'] #past tense prefix.
+TENSE_PREFIXES_V = ['o'] #past tense prefix
 SUBJECT_PREFIXES_V = ['ni', 'ti', 'an', 'xi'] #prefixes used to mark subjects
 REFLEXIVE_PREFIXES_V = ['no', 'mo'] #prefixes used to mark reflexives
 OBJECT_PREFIXES_V = ['nec', 'miz', 'tec', 'kin', 'mec', 'ki', 'k', 'j', 'te', 'La'] #prefixes used to mark objects
 COMMON_PREFIXES_V = ['nel'] #common semantic prefixes
-DIRECTIONAL_PREFIXES_V = ['wal', 'on']
+DIRECTIONAL_PREFIXES_V = ['wal', 'on'] #directional prefixes
 
 NUMBER_SUFFIXES_V = ['j'] #suffixes used to mark number
 DIRECTIONAL_SUFFIXES_V = ['ti', 'to', 'ki', 'ko'] #suffixes used to mark directionals
 TENSE_SUFFIXES_V = ['se', 's', 'yaya', 'ktok', 'jtok', 'toya', 'k', 'ke', 'ya'] #suffixes used to mark tense or aspect
 CAUSATIVE_SUFFIXES_V = ['ltia', 'lti', 'ti'] #suffixes used to mark the causative
+OPTATIVE_PLURAL_SUFFIXES_V = ['ka', 'kan'] #optative plural suffixes
 
 #noun morphemes
 GENITIVE_PREFIXES_N = ['no', 'mo', 'to', 'inin', 'ini', 'in', 'i', 'imo'] #prefixes used to mark possession
@@ -62,7 +63,7 @@ def search_suffix(word: str, suffixes: typing.Union[list[str], dict[str, str]]) 
             ind = len(word) - len(used_suffix)
             word = word[:ind]
             return word, used_suffix
-    return word, None
+    return word, None 
 
 def search_absolutive(noun: str) -> tuple[str, typing.Optional[str]]:
     '''
@@ -154,6 +155,10 @@ def parse_verb(verb: str, lemmas: typing.Optional[set[str]] = None) -> tuple[lis
     morphemes, lemma = parse_word(verb, [NEGATION_PREFIXES_V, TENSE_PREFIXES_V, SUBJECT_PREFIXES_V, REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V, 
                                          COMMON_PREFIXES_V, DIRECTIONAL_PREFIXES_V], 
                       [NUMBER_SUFFIXES_V, DIRECTIONAL_SUFFIXES_V, TENSE_SUFFIXES_V, CAUSATIVE_SUFFIXES_V], lemmas=lemmas)
+    if len(morphemes) > 0 and morphemes[0] == 'xi': #check for optative plural suffix if in the optative
+        cut_ending, opt_plural_suffix = search_suffix(morphemes[-1], OPTATIVE_PLURAL_SUFFIXES_V)
+        lemma = cut_ending if opt_plural_suffix and lemma == morphemes[-1] else lemma
+        morphemes = morphemes[:-1] + [cut_ending, opt_plural_suffix] if opt_plural_suffix else morphemes
     return join_on_illegal_sequence(morphemes, lemma)
 
 def lemmatize_verb(verb: str, lemmas: typing.Optional[set[str]] = None) -> str:

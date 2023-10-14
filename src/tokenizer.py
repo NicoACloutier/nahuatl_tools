@@ -72,7 +72,6 @@ def tokenize_text(text: str, basic: typing.Optional[list[str]] = None, verb_lemm
         `list[list[str]]`: a list of lists of morphemes in each word in the text.
     '''
     if reduplicate_nouns:
-        print([noun[:min(noun.index(vowel) for vowel in [vowel for vowel in VOWELS if vowel in noun])+1]+noun for noun in noun_lemmas if any(vowel in noun for vowel in VOWELS)])
         noun_lemmas += [noun[:min(noun.index(vowel) for vowel in [vowel for vowel in VOWELS if vowel in noun])+1]+noun for noun in noun_lemmas if any(vowel in noun for vowel in VOWELS)]
     
     basic = basic if basic else []
