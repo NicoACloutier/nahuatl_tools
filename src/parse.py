@@ -152,13 +152,10 @@ def parse_verb(verb: str, lemmas: typing.Optional[set[str]] = None) -> tuple[lis
         `list[str]`: a list of morphemes in the verb.
         `str`: the lemma of the verb.
     '''
-    morphemes, lemma = parse_word(verb, [NEGATION_PREFIXES_V, TENSE_PREFIXES_V, SUBJECT_PREFIXES_V, REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V, 
-                                         COMMON_PREFIXES_V, DIRECTIONAL_PREFIXES_V], 
-                      [NUMBER_SUFFIXES_V, DIRECTIONAL_SUFFIXES_V, TENSE_SUFFIXES_V, CAUSATIVE_SUFFIXES_V], lemmas=lemmas)
-    if len(morphemes) > 0 and morphemes[0] == 'xi': #check for optative plural suffix if in the optative
-        cut_ending, opt_plural_suffix = search_suffix(morphemes[-1], OPTATIVE_PLURAL_SUFFIXES_V)
-        lemma = cut_ending if opt_plural_suffix and lemma == morphemes[-1] else lemma
-        morphemes = morphemes[:-1] + [cut_ending, opt_plural_suffix] if opt_plural_suffix else morphemes
+    morphemes, lemma = parse_word(verb, [NEGATION_PREFIXES_V, TENSE_PREFIXES_V, SUBJECT_PREFIXES_V], [], lemmas=lemmas)
+    new_morphemes, lemma = parse_word(lemma, [REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V, COMMON_PREFIXES_V, DIRECTIONAL_PREFIXES_V], 
+                      [NUMBER_SUFFIXES_V, DIRECTIONAL_SUFFIXES_V, TENSE_SUFFIXES_V, CAUSATIVE_SUFFIXES_V] + ([OPTATIVE_PLURAL_SUFFIXES_V,] if morphemes[0] == 'xi' else []), lemmas=lemmas)
+    morphemes = morphemes[:-1] + new_morphemes
     return join_on_illegal_sequence(morphemes, lemma)
 
 def lemmatize_verb(verb: str, lemmas: typing.Optional[set[str]] = None) -> str:
