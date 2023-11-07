@@ -12,8 +12,8 @@ COMMON_PREFIXES_V = ['nel'] #common semantic prefixes
 DIRECTIONAL_PREFIXES_V = ['wal', 'on'] #directional prefixes
 
 NUMBER_SUFFIXES_V = ['j'] #suffixes used to mark number
-DIRECTIONAL_SUFFIXES_V = ['ti', 'to', 'ki', 'ko'] #suffixes used to mark directionals
-TENSE_SUFFIXES_V = ['se', 's', 'yaya', 'ktok', 'jtok', 'toya', 'k', 'ke', 'ya'] #suffixes used to mark tense or aspect
+DIRECTIONAL_SUFFIXES_V = ['ti', 'to', 'toya', 'ki', 'ko', 'koya'] #suffixes used to mark directionals
+TENSE_SUFFIXES_V = ['se', 's', 'yaya', 'ktok', 'jtok', 'k', 'ke', 'ya'] #suffixes used to mark tense or aspect
 CAUSATIVE_SUFFIXES_V = ['ltia', 'lti', 'ti'] #suffixes used to mark the causative
 OPTATIVE_PLURAL_SUFFIXES_V = ['ka', 'kan'] #optative plural suffixes
 
