@@ -7,6 +7,6 @@ Features:
 - Lemmatization (see `src/parse.py`)
 - Part-of-speech tagging (see `src/pos_tagger.py`)
 - Full text tokenization/morpheme segmentation pipeline, including optional orthography conversion (see `src/tokenizer.py`)
-- Wordlists and lists of lemmas (see `wordlists/`)
+- Wordlists and lists of stems (see `wordlists/`)
 
 For questions, suggestions, or anything else, email `nicocloutier1@gmail.com`.

@@ -87,7 +87,7 @@ def search_genitive(noun: str) -> tuple[str, typing.Optional[str]]:
     '''
     return search_prefix(noun, GENITIVE_PREFIXES_N)
 
-def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]], lemmas: typing.Optional[set[str]] = None) -> tuple[list[str], str]:
+def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]], stems: typing.Optional[set[str]] = None) -> tuple[list[str], str]:
     '''
     Split a word into its component morphemes.
     Arguments:
@@ -95,17 +95,17 @@ def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]], 
         `prefixes: list[list[str]]`: a list of lists of mutually exclusive prefixes in order of appearance from beginning.
         `suffixes: list[list[str]]`: a list of lists of mutually exclusive suffixes in order of appearance from end.
         Optional:
-        `lemmas: typing.Optional[set[str]] = None`: a set of lemmas to check for.
+        `stems: typing.Optional[set[str]] = None`: a set of stems to check for.
     Returns:
         `list[str]`: the list of morphemes in the word.
-        `str`: the lemma of the word.
+        `str`: the stem of the word.
     '''
     morphemes = []
     for prefix_list in prefixes:
         word, prefix = search_prefix(word, prefix_list)
         if prefix:
             morphemes.append(prefix)
-        if lemmas and word in lemmas:
+        if stems and word in stems:
             morphemes.append(word)
             return morphemes, word
 
@@ -114,7 +114,7 @@ def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]], 
         word, suffix = search_suffix(word, suffix_list)
         if suffix:
             found_suffixes.append(suffix)
-        if lemmas and word in lemmas:
+        if stems and word in stems:
             morphemes.append(word)
             morphemes += found_suffixes[::-1]
             return morphemes, word
@@ -123,81 +123,81 @@ def parse_word(word: str, prefixes: list[list[str]], suffixes: list[list[str]], 
     morphemes += found_suffixes[::-1]
     return morphemes, word
 
-def join_on_illegal_sequence(morphemes: list[str], lemma: str) -> tuple[list[str], str]:
+def join_on_illegal_sequence(morphemes: list[str], stem: str) -> tuple[list[str], str]:
     '''
-    Join a lemma with the previous morpheme if that lemma begins with two consonants.
+    Join a stem with the previous morpheme if that stem begins with two consonants.
     Arguments:
         `morphemes: list[str]`: a list of morphemes in the word.
-        `lemma: str`: the lemma of the word.
+        `stem: str`: the stem of the word.
     Returns:
-        `list[str]`: the morphemes after joining the lemma on illegal sequences.
-        `str`: the lemma after being joined on illegal sequences.
+        `list[str]`: the morphemes after joining the stem on illegal sequences.
+        `str`: the stem after being joined on illegal sequences.
     '''
-    if len(lemma) == 0 or (lemma[0] not in VOWELS and (len(lemma) == 1 or lemma[1] not in VOWELS)):
-        lemma_index = morphemes.index(lemma)
-        if lemma_index == 0:
-            return morphemes, lemma
-        lemma = morphemes[lemma_index-1] + lemma
-        morphemes = morphemes[:lemma_index-1] + [lemma,] + morphemes[lemma_index+1:]
-    return morphemes, lemma
+    if len(stem) == 0 or (stem[0] not in VOWELS and (len(stem) == 1 or stem[1] not in VOWELS)):
+        stem_index = morphemes.index(stem)
+        if stem_index == 0:
+            return morphemes, stem
+        stem = morphemes[stem_index-1] + stem
+        morphemes = morphemes[:stem_index-1] + [stem,] + morphemes[stem_index+1:]
+    return morphemes, stem
 
-def parse_verb(verb: str, lemmas: typing.Optional[set[str]] = None) -> tuple[list[str], str]:
+def parse_verb(verb: str, stems: typing.Optional[set[str]] = None) -> tuple[list[str], str]:
     '''
     Parse a verb for morphemes.
     Arguments:
         `verb: str`: the verb to be parsed.
         Optional:
-        `lemmas: typing.Optional[set[str]] = None`: a set of lemmas to check for.
+        `stems: typing.Optional[set[str]] = None`: a set of stems to check for.
     Returns:
         `list[str]`: a list of morphemes in the verb.
-        `str`: the lemma of the verb.
+        `str`: the stem of the verb.
     '''
-    morphemes, lemma = parse_word(verb, [NEGATION_PREFIXES_V, TENSE_PREFIXES_V, SUBJECT_PREFIXES_V], [], lemmas=lemmas)
-    new_morphemes, lemma = parse_word(lemma, [REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V, COMMON_PREFIXES_V, DIRECTIONAL_PREFIXES_V], 
-                      [NUMBER_SUFFIXES_V, DIRECTIONAL_SUFFIXES_V, TENSE_SUFFIXES_V, CAUSATIVE_SUFFIXES_V] + ([OPTATIVE_PLURAL_SUFFIXES_V,] if morphemes[0] == 'xi' else []), lemmas=lemmas)
+    morphemes, stem = parse_word(verb, [NEGATION_PREFIXES_V, TENSE_PREFIXES_V, SUBJECT_PREFIXES_V], [], stems=stems)
+    new_morphemes, stem = parse_word(stem, [REFLEXIVE_PREFIXES_V, OBJECT_PREFIXES_V, COMMON_PREFIXES_V, DIRECTIONAL_PREFIXES_V], 
+                      [NUMBER_SUFFIXES_V, DIRECTIONAL_SUFFIXES_V, TENSE_SUFFIXES_V, CAUSATIVE_SUFFIXES_V] + ([OPTATIVE_PLURAL_SUFFIXES_V,] if morphemes[0] == 'xi' else []), stems=stems)
     morphemes = morphemes[:-1] + new_morphemes
-    return join_on_illegal_sequence(morphemes, lemma)
+    return join_on_illegal_sequence(morphemes, stem)
 
-def lemmatize_verb(verb: str, lemmas: typing.Optional[set[str]] = None) -> str:
+def stemtize_verb(verb: str, stems: typing.Optional[set[str]] = None) -> str:
     '''
     Lemmatize a verb.
     Arguments:
-        `verb: str`: the verb to lemmatize.
+        `verb: str`: the verb to stemtize.
         Optional:
-        `lemmas: typing.Optional[set[str]] = None`: a set of lemmas to check for.
+        `stems: typing.Optional[set[str]] = None`: a set of stems to check for.
     Returns:
-        `str`: the lemma of the verb.
+        `str`: the stem of the verb.
     '''
-    return parse_verb(verb, lemmas=lemmas)[1]
+    return parse_verb(verb, stems=stems)[1]
 
-def parse_noun(noun: str, lemmas: typing.Optional[set[str]] = None) -> tuple[list[str], str]:
+def parse_noun(noun: str, stems: typing.Optional[set[str]] = None) -> tuple[list[str], str]:
     '''
     Parse a noun for morphemes.
     Arguments:
         `noun: str`: the noun to be parsed.
         Optional:
-        `lemmas: typing.Optional[set[str]] = None`: a set of lemmas to check for.
+        `stems: typing.Optional[set[str]] = None`: a set of stems to check for.
     Returns:
         `list[str]`: the list of morphemes in the noun.
-        `str`: the lemma of the noun.
+        `str`: the stem of the noun.
     '''
     cut_noun, absolutive = search_absolutive(noun)
     if not absolutive:
         _, genitive = search_genitive(noun)
         suffixes = [DIMINUTIVE_SUFFIXES_N, GENITIVE_SUFFIXES_N] if genitive else [PLURAL_SUFFIXES_N, DIMINUTIVE_SUFFIXES_N]
-        return join_on_illegal_sequence(*parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N, DIMINUTIVE_PREFIXES_N], suffixes, lemmas=lemmas))
+        return join_on_illegal_sequence(*parse_word(noun, [SUBJECT_PREFIXES_V, GENITIVE_PREFIXES_N, DIMINUTIVE_PREFIXES_N], suffixes, stems=stems))
     else:
-        morphemes, lemma = parse_word(cut_noun, [SUBJECT_PREFIXES_V, DIMINUTIVE_PREFIXES_N], [DIMINUTIVE_SUFFIXES_N], lemmas=lemmas)
-        return join_on_illegal_sequence(morphemes + [absolutive,], lemma)
+        morphemes, stem = parse_word(cut_noun, [SUBJECT_PREFIXES_V, DIMINUTIVE_PREFIXES_N], [DIMINUTIVE_SUFFIXES_N], stems=stems)
+        return join_on_illegal_sequence(morphemes + [absolutive,], stem)
 
-def lemmatize_noun(noun: str, lemmas: typing.Optional[set[str]] = None) -> str:
+def stemtize_noun(noun: str, stems: typing.Optional[set[str]] = None) -> str:
     '''
     Lemmatize a noun.
     Arguments:
-        `noun: str`: the noun to lemmatize.
+        `noun: str`: the noun to stemtize.
         Optional:
-        `lemmas: typing.Optional[set[str]] = None`: a set of lemmas to check for.
+        `stems: typing.Optional[set[str]] = None`: a set of stems to check for.
     Returns:
-        `str`: the lemma of the noun.
+        `str`: the stem of the noun.
     '''
-    return parse_noun(noun, lemmas=lemmas)[1]
+    return parse_noun(noun, stems=stems)[1]
