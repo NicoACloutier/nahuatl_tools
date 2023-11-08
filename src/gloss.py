@@ -208,10 +208,43 @@ class Verb():
         return self
 
 class Noun():
+    '''
+    A morphological noun representation in Nahuatl.
+    Instance variables:
+        `self.word: str`: the string representation of the word in full. 
+        `self.morphemes: list[str]`: the morphemes in the word.
+        `self.stem: str`: the stem of the noun.
+        `self.plural: typing.Optional[str]`: plural marking if applicable, else `None`.
+        `self.absolutive: typing.Optional[str]`: absolutive marking if the noun has an absolutive marking, else `None`.
+        `self.genitive: typing.Optional[str]`: the person and number in possession of the noun if applicable, else `None`.
+    '''
+    NON_GENITIVE_PLURALS = ['me', 'mej', 'zizi', 'zizin', 'zinzin']
+
     def __init__(self, word: str) -> None:
+        '''
+        Initialize a noun.
+        Arguments:
+            `word: str`: the string representation of the noun.
+        Returns:
+            `None`
+        '''
         self.word = word
         self.morphemes = parse_noun(word)[1]
         self.prefix_index, self.suffix_index = 0, len(self.morphemes)-1
+        self.absolutive = search_absolutive(self.word)[1]
+        self.genitive = search_genitive(self.word)[1]
+        self.get_plural()
+    
+    def get_plural(self) -> Noun:
+        '''
+        Get the plural information if present.
+        Arguments:
+            `None`
+        Returns:
+            `Noun`: the `Noun` object this method was called on.
+        '''
+        self.plural = self.morphemes[-1] if (self.genitive and self.morphemes[-1] in ['wa', 'wan']) or self.morphemes[-1] in NON_GENITIVE_PLURALS else None
+        return self
 
 class Other():
     def __init__(self, word: str) -> None:
