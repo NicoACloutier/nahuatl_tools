@@ -21,7 +21,7 @@ OPTATIVE_PLURAL_SUFFIXES_V = ['ka', 'kan'] #optative plural suffixes
 GENITIVE_PREFIXES_N = ['no', 'mo', 'to', 'inin', 'ini', 'in', 'i', 'imo'] #prefixes used to mark possession
 DIMINUTIVE_PREFIXES_N = ['pil'] #prefixes used to mark the diminutive
 
-ABSOLUTIVE_SUFFIXES_N = {'(?<!=[aeiou])Li': 'Li', '(?<=[aeiou])L': 'L', '(?<=[l])i': 'i', '(?!<=[z])in': 'in', 'me': 'me', 'mej': 'mej'} #suffixes used to mark the absolutive (uses RegEx)
+ABSOLUTIVE_SUFFIXES_N = {'(?<!=[aeiou])Li': 'Li', '(?<=[aeiou])L': 'L', '(?<=[l])i': 'i', '(?!<=[z])in': 'in'} #suffixes used to mark the absolutive (uses RegEx)
 PLURAL_SUFFIXES_N = ['mej', 'me'] #suffixes used to mark the plural
 GENITIVE_SUFFIXES_N = ['wan', 'wa', 'yo'] #suffixes used with the genitive
 DIMINUTIVE_SUFFIXES_N = ['zizin', 'zinzin', 'zin', 'zizi', 'zi', 'pil'] #suffixes used to mark the diminutive

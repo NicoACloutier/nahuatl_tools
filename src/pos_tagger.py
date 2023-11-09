@@ -40,6 +40,11 @@ def is_verb_rb(word: str, verb_list: typing.Union[list[str], set[str]], non_verb
     #check for an absolutive suffix
     if absolutive:
         return False
+    
+    #check for plural suffix in noun
+    for plural_suffix in PLURAL_SUFFIXES_N:
+        if plural_suffix in noun_morphemes[noun_stem_pos:]:
+            return False
 
     #check for plural ending to verb and plural signifier
     if verb_morphemes[:-1] in NUMBER_SUFFIXES_V and any(prefix in verb_morphemes[:verb_stem_pos] for prefix in PLURAL_VERB_PREFIXES):

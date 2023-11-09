@@ -2,6 +2,13 @@ import typing
 from .parse import *
 from .pos_tagger import *
 
+SUBJECT_MATCHER = {'s-ni': 1, 's-ti': 2, 'p-ti': 1, 'p-an': 2} #matches subject markers and numbers
+OBJECT_MATCHER = {'nec': '1-singular', 'miz': '2-singular', 'tec': '1-plural', 'kin': '3-plural', 'mec': '2-plural', 
+                  'ki': '3-singular', 'k': '3-singular', 'j': '3-singular', 'te': 'impersonal-person', 'La': 'impersonal-nonperson'} #matches object markers
+TENSE_MATCHER = {'se': 'future', 's': 'future', 'yaya': 'past', 'ktok': 'past', 'jtok': 'past', 'k': 'past', 'ke': 'past', 'ya': 'past'} #matches tense markers
+ASPECT_MATCHER = {'yaya': 'imperfect', 'ktok': 'perfect', 'jtok': 'perfect', 'k': 'perfect', 'ke': 'perfect', 'ya': 'imperfect'} #matches aspect markers
+NON_GENITIVE_PLURALS = ['me', 'mej', 'zizi', 'zizin', 'zinzin']
+
 class Verb():
     '''
     A morphological verb representation in Nahuatl.
@@ -24,11 +31,6 @@ class Verb():
         `self.direction_suffix: typing.Optional[str]`: `'towards'` if the verb has the "ti" or "to" prefix, `'away'` if it has the "ki" or "ko" prefix, and `None` otherwise.
         `self.causative: bool`: whether there is a causative/applicative suffix present in the verb.
     '''
-    SUBJECT_MATCHER = {'s-ni': 1, 's-ti': 2, 'p-ti': 1, 'p-an': 2} #matches subject markers and numbers
-    OBJECT_MATCHER = {'nec': '1-singular', 'miz': '2-singular', 'tec': '1-plural', 'kin': '3-plural', 'mec': '2-plural', 
-                      'ki': '3-singular', 'k': '3-singular', 'j': '3-singular', 'te': 'impersonal-person', 'La': 'impersonal-nonperson'} #matches object markers
-    TENSE_MATCHER = {'se': 'future', 's': 'future', 'yaya': 'past', 'ktok': 'past', 'jtok': 'past', 'k': 'past', 'ke': 'past', 'ya': 'past'} #matches tense markers
-    ASPECT_MATCHER = {'yaya': 'imperfect', 'ktok': 'perfect', 'jtok': 'perfect', 'k': 'perfect', 'ke': 'perfect', 'ya': 'imperfect'} #matches aspect markers
 
     def __init__(self, word: str) -> None:
         '''
@@ -75,7 +77,7 @@ class Verb():
         return self.morphemes[-1] in ['j', 'ke', 'se']
     
     #prefix searching methods
-    def get_negative(self) -> Verb:
+    def get_negative(self):
         '''
         Get the negative prefix if present, write information to the `self.negative` instance variable.
         Arguments:
@@ -90,7 +92,7 @@ class Verb():
             self.negative = False
         return self
     
-    def get_past_prefix(self) -> Verb:
+    def get_past_prefix(self):
         '''
         Get the past prefix if present, write information to the `self.tense` instance variable.
         Arguments:
@@ -103,7 +105,7 @@ class Verb():
             self.prefix_index += 1
         return self
     
-    def get_subject_person(self) -> Verb:
+    def get_subject_person(self):
         '''
         Get the subject prefix if present, write information to the `self.person` and `self.optative` instance variables.
         Arguments:
@@ -124,7 +126,7 @@ class Verb():
             self.person = 3
         return self
     
-    def get_reflexive(self) -> Verb:
+    def get_reflexive(self):
         '''
         Get the reflexive prefix if present, write information to the `self.reflexive` instance variable.
         Arguments:
@@ -139,7 +141,7 @@ class Verb():
             self.reflexive = False
         return self
     
-    def get_object(self) -> Verb:
+    def get_object(self):
         '''
         Get the object prefix if present, write information to the `self.object` and `self.impersonal` instance variables.
         Arguments:
@@ -153,7 +155,7 @@ class Verb():
             self.impersonal = self.object.startswith('impersonal')
         return self
     
-    def get_direction(self) -> Verb:
+    def get_direction(self):
         '''
         Get the direction prefix if present, write information to the `self.direction_prefix` instance variable.
         Arguments:
@@ -167,7 +169,7 @@ class Verb():
         return self
     
     #suffix searching methods
-    def get_directional_suffix(self) -> Verb:
+    def get_directional_suffix(self):
         '''
         Get the direction suffix if present, write information to the `self.direction_suffix` instance variable.
         Arguments:
@@ -181,7 +183,7 @@ class Verb():
             self.suffix_index -= 1
         return self
     
-    def get_tense(self) -> Verb:
+    def get_tense(self):
         '''
         Get the tense and aspect suffix information if present.
         Arguments:
@@ -195,7 +197,7 @@ class Verb():
             self.suffix_index -= 1
         return self
     
-    def get_causative(self) -> Verb:
+    def get_causative(self):
         '''
         Get the causative information if present.
         Arguments:
@@ -206,6 +208,39 @@ class Verb():
         self.causative = self.morphemes[self.suffix_index] in CAUSATIVE_SUFFIXES_V
         self.suffix_index -= self.morphemes[self.suffix_index] in CAUSATIVE_SUFFIXES_V
         return self
+    
+    def __str__(self) -> str:
+        '''
+        Represent the verb object as a pretty string.
+        Arguments:
+            `None`
+        Returns:
+            `str`: the string representation.
+        '''
+        return f'''Verb object {self.word}.
+    Stem: {self.stem}.
+    Plural: {self.plural}.
+    Negative: {self.negative}.
+    Tense: {self.tense}.
+    Optative: {self.optative}.
+    Subject person: {self.person}.
+    Reflexive: {self.reflexive}.
+    Object: {self.object}.
+    Impersonal object: {self.impersonal}.
+    Directional prefix: {self.direction_prefix}.
+    Aspect: {self.aspect}.
+    Direction suffix: {self.direction_suffix}.
+    Causative: {self.causative}.'''
+    
+    def __repr__(self) -> str:
+        '''
+        Represent the verb object as a devstring.
+        Arguments:
+            `None`
+        Returns:
+            `str`: the string representation.
+        '''
+        return str((self.word, self.stem, self.morphemes))
 
 class Noun():
     '''
@@ -218,7 +253,6 @@ class Noun():
         `self.absolutive: typing.Optional[str]`: absolutive marking if the noun has an absolutive marking, else `None`.
         `self.genitive: typing.Optional[str]`: the person and number in possession of the noun if applicable, else `None`.
     '''
-    NON_GENITIVE_PLURALS = ['me', 'mej', 'zizi', 'zizin', 'zinzin']
 
     def __init__(self, word: str) -> None:
         '''
@@ -229,13 +263,13 @@ class Noun():
             `None`
         '''
         self.word = word
-        self.morphemes = parse_noun(word)[1]
+        self.morphemes, self.stem = parse_noun(word)
         self.prefix_index, self.suffix_index = 0, len(self.morphemes)-1
         self.absolutive = search_absolutive(self.word)[1]
         self.genitive = search_genitive(self.word)[1]
         self.get_plural()
     
-    def get_plural(self) -> Noun:
+    def get_plural(self):
         '''
         Get the plural information if present.
         Arguments:
@@ -245,14 +279,38 @@ class Noun():
         '''
         self.plural = self.morphemes[-1] if (self.genitive and self.morphemes[-1] in ['wa', 'wan']) or self.morphemes[-1] in NON_GENITIVE_PLURALS else None
         return self
+    
+    def __str__(self) -> str:
+        '''
+        Represent the noun object as a pretty string.
+        Arguments:
+            `None`
+        Returns:
+            `str`: the string representation.
+        '''
+        return f'''Noun object {self.word}
+    Stem: {self.stem}.
+    Absolutive: {self.absolutive}.
+    Genitive: {self.genitive}.
+    Plural: {self.plural}.'''
+    
+    def __repr__(self) -> str:
+        '''
+        Represent the verb object as a devstring.
+        Arguments:
+            `None`
+        Returns:
+            `str`: the string representation.
+        '''
+        return str((self.word, self.stem, self.morphemes))
 
 class Other():
     def __init__(self, word: str) -> None:
         self.word = word
         self.morphemes = [word,]
 
-def make_word(word: str) -> tuple[typing.Union[Verb, Noun, Other], typing.Optional[bool]]:
-    is_verb = is_verb_rb(word)
+def make_word(word: str, verb_list: typing.Optional[list[str]] = None, noun_list: typing.Optional[list[str]] = None) -> tuple[typing.Union[Verb, Noun, Other], typing.Optional[bool]]:
+    is_verb = is_verb_rb(word, verb_list if verb_list else [], noun_list if noun_list else [])
     if is_verb == None:
         return Other(word), None
     elif is_verb:
