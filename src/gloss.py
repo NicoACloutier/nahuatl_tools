@@ -305,9 +305,39 @@ class Noun():
         return str((self.word, self.stem, self.morphemes))
 
 class Other():
+    '''
+    A morphological non-noun, non-verb representation in Nahuatl.
+    This is meant to refer only to words that cannot be morphologically parsed as nouns or verbs
+        (so e.g. relationals like "ipan" are considered nouns, this is only for very common words and loans)
+    No morphological parsing is done, this word will always be considered a single morpheme.
+    Instance variables:
+        `self.word: str`: the string representation of the word in full. 
+        `self.morphemes: list[str]`: the morphemes in the word.
+    '''
+    
     def __init__(self, word: str) -> None:
         self.word = word
         self.morphemes = [word,]
+    
+        def __str__(self) -> str:
+        '''
+        Represent the word object as a pretty string.
+        Arguments:
+            `None`
+        Returns:
+            `str`: the string representation.
+        '''
+        return f'''Word object {self.word}.'''
+    
+    def __repr__(self) -> str:
+        '''
+        Represent the verb object as a devstring.
+        Arguments:
+            `None`
+        Returns:
+            `str`: the string representation.
+        '''
+        return str((self.word, self.morphemes))
 
 def make_word(word: str, verb_list: typing.Optional[list[str]] = None, noun_list: typing.Optional[list[str]] = None) -> tuple[typing.Union[Verb, Noun, Other], typing.Optional[bool]]:
     is_verb = is_verb_rb(word, verb_list if verb_list else [], noun_list if noun_list else [])
