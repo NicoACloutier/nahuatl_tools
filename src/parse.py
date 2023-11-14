@@ -158,11 +158,11 @@ def parse_verb(verb: str, stems: typing.Optional[set[str]] = None) -> tuple[list
     morphemes = morphemes[:-1] + new_morphemes
     return join_on_illegal_sequence(morphemes, stem)
 
-def stemtize_verb(verb: str, stems: typing.Optional[set[str]] = None) -> str:
+def stem_verb(verb: str, stems: typing.Optional[set[str]] = None) -> str:
     '''
-    Lemmatize a verb.
+    Stem a verb.
     Arguments:
-        `verb: str`: the verb to stemtize.
+        `verb: str`: the verb to stem.
         Optional:
         `stems: typing.Optional[set[str]] = None`: a set of stems to check for.
     Returns:
@@ -190,11 +190,11 @@ def parse_noun(noun: str, stems: typing.Optional[set[str]] = None) -> tuple[list
         morphemes, stem = parse_word(cut_noun, [SUBJECT_PREFIXES_V, DIMINUTIVE_PREFIXES_N], [DIMINUTIVE_SUFFIXES_N], stems=stems)
         return join_on_illegal_sequence(morphemes + [absolutive,], stem)
 
-def stemtize_noun(noun: str, stems: typing.Optional[set[str]] = None) -> str:
+def stem_noun(noun: str, stems: typing.Optional[set[str]] = None) -> str:
     '''
-    Lemmatize a noun.
+    Stem a noun.
     Arguments:
-        `noun: str`: the noun to stemtize.
+        `noun: str`: the noun to stem.
         Optional:
         `stems: typing.Optional[set[str]] = None`: a set of stems to check for.
     Returns:

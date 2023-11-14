@@ -4,7 +4,7 @@ For all features of `nahuatl_tools`, it is expected that the text be in an ortho
 
 Features:
 - Morphological segmentation (see `src/parse.py`)
-- Lemmatization (see `src/parse.py`)
+- Stemming (see `src/parse.py`)
 - Part-of-speech tagging (see `src/pos_tagger.py`)
 - Full text tokenization/morpheme segmentation pipeline, including optional orthography conversion (see `src/tokenizer.py`)
 - Wordlists and lists of stems (see `wordlists/`)
