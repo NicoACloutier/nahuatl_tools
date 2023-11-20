@@ -8,5 +8,6 @@ Features:
 - Part-of-speech tagging (see `nahuatl_tools/pos_tagger.py`)
 - Full text tokenization/morpheme segmentation pipeline, including optional orthography conversion (see `nahuatl_tools/tokenizer.py`)
 - Wordlists and lists of stems (see `wordlists/`)
+- Morpheme glosser (see `nahuatl_tools/gloss.py`)
 
 For questions, suggestions, or anything else, email `nicocloutier1@gmail.com`.
