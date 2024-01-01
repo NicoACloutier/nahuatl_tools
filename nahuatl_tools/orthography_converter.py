@@ -1,6 +1,7 @@
 import re
 
-#a substitution that will correctly convert most modern orthographies
+#a substitution that will correctly convert most modern orthographies.
+#   Can work with `uses_c=True` or `uses_c=False`.
 MODERN = {'k': ['qu'],
           'c': ['ch'],
           'j': ['h'], 
@@ -10,7 +11,8 @@ MODERN = {'k': ['qu'],
           'L': ['tl'],
          }
 
-#a substitution that will correctly convert the classical orthography
+#a substitution that will correctly convert the classical orthography.
+#   Recommended with `uses_c=True`.
 CLASSIC = {'k': ['qu'],
            's': ['z'],
            'z': ['ts'],
@@ -85,4 +87,68 @@ class Orthography:
             for grapheme in self.substitutions[phoneme]:
                 text = text.replace(grapheme, phoneme)
         text = re.sub(r'([cjlmpqstwxyz])\1', r'\1', text) #remove double consonants
+        return text
+
+#a substitution that will correctly convert back to a modern orthography.
+#   Recommended with `uses_c_for_s=False`, `uses_c_for_k=False`, `uses_hu=False`, `uses_cu=False`, and `final_double_l=False`.
+REVERSE_MODERN = {'c': 'ch',
+                  'q': 'kw',
+                  'z': 'tz',
+                  'L': 'tl',
+                  }
+
+#a substitution that will correctly convert back to the classical orthography
+#   Recommended with `uses_c_for_s=True`, `uses_c_for_k=True`, `uses_hu=True`, `uses_cu=True`, and `final_double_l=True`.
+REVERSE_CLASSIC = {'c': 'ch',
+                   'z': 'ts',
+                   's': 'z',
+                   'L': 'tl',
+                   'j': 'h',
+                   }
+
+class ReverseOrthography:
+    def __init__(self, uses_c_for_s: bool, uses_c_for_k: bool, uses_hu: bool, uses_cu: bool, final_double_l: bool, substitutions: dict[str, list[str]]) -> None:
+        
+        '''
+        Create a reverse orthography object.
+        Arguments:
+            `uses_c_for_s: bool`: whether or not the orthography uses the grapheme <c> as the phoneme /s/.
+            `uses_c_for_k: bool`: whether or not the orthography uses the grapheme <c> as the phoneme /k/.
+            `uses_hu: bool`: whether or not the orthography uses the graphemes <hu> as the phoneme /w/.
+            `uses_cu: bool`: whether or not the orthography uses the graphemes <cu> as the phoneme /kʷ/.
+            `final_double_l: bool`: whether or not the orthography uses a final double <l> on words ending in <li>.
+            `substitutions: dict[str, list[str]]`: the direct substitutions that can be made for the orthography.
+        Returns:
+            `None`
+        '''
+        self.uses_c_for_s = uses_c_for_s
+        self.uses_c_for_k = uses_c_for_k
+        self.uses_hu = uses_hu
+        self.uses_cu = uses_cu
+        self.final_double_l = final_double_l
+        self.substitutions = substitutions
+    
+    def convert(self, text: str) -> str:
+        '''
+        Convert a text from the common orthography to an orthography of choice.
+        Arguments:
+            `text: str`: the text to be converted.
+        Returns:
+            `str`: the converted text.
+        '''
+        for substitution in self.substitutions:
+            text = text.replace(substitution, self.substitutions[substitution])
+        if self.uses_c_for_s:
+            text = re.sub('z(?=[ei])', 'c', text)
+        if self.uses_hu:
+            text = re.sub('w(?=[aeiou])', 'hu', text)
+            text = re.sub('(?<=[aeiou])w', 'uh', text)
+        if self.uses_cu:
+            text = re.sub('q(?=[aeiou])', 'cu', text)
+            text = re.sub('(?<=[aeiou])q', 'uc', text)
+        if self.uses_c_for_k:
+            text = re.sub('k(?=[ei])', 'qu', text)
+            text = text.replace('k', 'c')
+        if self.final_double_l:
+            text = re.sub('li\\b', 'lli', text)
         return text
